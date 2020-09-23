@@ -144,7 +144,7 @@ export class BlockchainManager {
 
       event = events[0].returnValues;
       previousChange = 0;
-      const eventKeyBytes = event.name.substring(keyBytes.length);
+      const eventKeyBytes = event.name.substring(0, keyBytes.length);
       if (eventKeyBytes !== keyBytes) {
         previousChange = event.previousChange;
         event = undefined;
