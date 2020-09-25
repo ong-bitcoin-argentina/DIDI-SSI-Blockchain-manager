@@ -1,6 +1,5 @@
 import {Resolver} from "did-resolver";
 import {Signer} from "did-jwt/src/JWT";
-import set = Reflect.set;
 
 const Constants = require("./Constants");
 const DidRegistryContract = require("ethr-did-registry");
