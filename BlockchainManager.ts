@@ -172,7 +172,7 @@ export class BlockchainManager {
   ) {
     payload.exp = expiration;
     payload.aud = audienceDID;
-    return didJWT.createJWT(
+    return await didJWT.createJWT(
       payload,
       {alg: "ES256K-R", issuer: issuerDid, signer}
     );
@@ -193,7 +193,7 @@ export class BlockchainManager {
    * @param {string} audienceDID DID of the audience if needed
    */
   async verifyJWT(jwt, audienceDID = undefined) {
-    return didJWT.verifyJWT(jwt, {resolver: this.didResolver, audience: audienceDID});
+    return await didJWT.verifyJWT(jwt, {resolver: this.didResolver, audience: audienceDID});
   }
 
 }
