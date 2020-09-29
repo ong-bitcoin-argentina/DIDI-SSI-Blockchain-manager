@@ -20,6 +20,11 @@ interface Options {
   gas: number
 }
 
+interface Identity {
+  did: string,
+  privateKey: string
+}
+
 export class BlockchainManager {
 
   config: BlockchainManagerConfig
@@ -33,11 +38,20 @@ export class BlockchainManager {
   static delegateType = delegateTypes.Secp256k1SignatureAuthentication2018;
 
   /**
-   * Get gas price for RSK network
+   * Get the minimum gas price for the given method and options
    * @returns {number}
    */
-  get gasPrice() {
-    return this.config.gasPrice;
+  async getGasPrice() {
+    const lastBlock = await web3.eth.getBlock("latest");
+    return Math.round(parseInt(lastBlock.minimumGasPrice) * 1.1);
+  }
+
+  /**
+   * Get gas limit given the method and options
+   * @returns {number}
+   */
+  async getGasLimit(method, options) {
+    return Math.max(await method.estimateGas(options), 21000);
   }
 
   /**
@@ -64,33 +78,37 @@ export class BlockchainManager {
 
   /**
    * Add delegateDID as a delegate of identity
-   * @param {string}  identity
+   * @param {Identity}  identity
    * @param {string}  delegateDID
    * @param {number}  validity
    */
-  async addDelegate(identity: string, delegateDID: string, validity: number = Constants.BLOCKCHAIN.DELEGATE_VALIDITY) {
-    const identityAddr = BlockchainManager.getDidAddress(identity);
+  async addDelegate(identity: Identity, delegateDID: string, validity: number = Constants.BLOCKCHAIN.DELEGATE_VALIDITY) {
+    const identityAddr = BlockchainManager.getDidAddress(identity.did);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
-    const options: Options = {from: identityAddr, gas: undefined, gasPrice: this.gasPrice};
+    const options: Options = {from: identityAddr, gas: undefined, gasPrice: undefined};
     const contract = BlockchainManager.getDidContract(options);
+    const account = web3.eth.accounts.privateKeyToAccount(identity.privateKey);
+    web3.eth.accounts.wallet.add(account);
     const addDelegateMethod = contract.methods
       .addDelegate(identityAddr, BlockchainManager.delegateType, delegateAddr, validity);
+    options.gas = await this.getGasLimit(addDelegateMethod, options);
+    options.gasPrice = await this.getGasPrice();
     return addDelegateMethod.send(options);
   }
 
   /**
    * validate if delegateDID is delegate of identity
-   * @param {string}  identity
+   * @param {Identity}  identity
    * @param {string}  delegateDID
    */
-  async validateDelegate(identity, delegateDID) {
-    const options = {from: identity};
-    const identityAddr = BlockchainManager.getDidAddress(identity);
+  async validateDelegate(identity: Identity, delegateDID: string) {
+    const identityAddr = BlockchainManager.getDidAddress(identity.did);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
+    const options: Options = {from: identityAddr, gas: undefined, gasPrice: undefined};
     const contract = BlockchainManager.getDidContract(options);
-    return contract.methods
-      .validDelegate(identityAddr, BlockchainManager.delegateType, delegateAddr)
-      .call(options);
+    const validDelegateMethod = contract.methods
+      .validDelegate(identityAddr, BlockchainManager.delegateType, delegateAddr);
+    return validDelegateMethod.call(options);
   }
 
   /**
@@ -111,11 +129,12 @@ export class BlockchainManager {
    */
   async setAttribute(identity: string, key: string, value: string, validity: number = Constants.BLOCKCHAIN.ATTRIBUTE_VALIDITY) {
     const didAddr = BlockchainManager.getDidAddress(identity);
-    const options: Options = {from: didAddr, gasPrice: this.gasPrice, gas: undefined};
+    const options: Options = {from: didAddr, gasPrice: undefined, gas: undefined};
     const contract = BlockchainManager.getDidContract(options);
     const keyBytes = web3.utils.fromAscii(key)
     const valueBytes = web3.utils.fromAscii(value)
     const setAttrMethod = contract.methods.setAttribute(didAddr, keyBytes, valueBytes, validity);
+    options.gas = await this.getGasLimit(setAttrMethod, options);
     return setAttrMethod.send(options);
   }
 
@@ -126,7 +145,7 @@ export class BlockchainManager {
    */
   async getAttribute(identity: string, key: string) {
     const identityAddr = BlockchainManager.getDidAddress(identity);
-    const options: Options = {from: identityAddr, gasPrice: this.gasPrice, gas: undefined};
+    const options: Options = {from: identityAddr, gasPrice: undefined, gas: undefined};
     const contract = BlockchainManager.getDidContract(options);
     const keyBytes = web3.utils.fromAscii(key);
 
