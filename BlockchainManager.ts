@@ -119,60 +119,6 @@ export class BlockchainManager {
     return this.didResolver.resolve(did);
   }
 
-
-  /**
-   * Sets an DID attribute
-   * @param {string}  identity  DID to set the attribute in
-   * @param {string}  key  Attribute key
-   * @param {string}  value  Attribute value
-   * @param {number}  validity
-   */
-  async setAttribute(identity: string, key: string, value: string, validity: number = Constants.BLOCKCHAIN.ATTRIBUTE_VALIDITY) {
-    const didAddr = BlockchainManager.getDidAddress(identity);
-    const options: Options = {from: didAddr, gasPrice: undefined, gas: undefined};
-    const contract = BlockchainManager.getDidContract(options);
-    const keyBytes = web3.utils.fromAscii(key)
-    const valueBytes = web3.utils.fromAscii(value)
-    const setAttrMethod = contract.methods.setAttribute(didAddr, keyBytes, valueBytes, validity);
-    options.gas = await this.getGasLimit(setAttrMethod, options);
-    return setAttrMethod.send(options);
-  }
-
-  /**
-   * Gets an DID attribute
-   * @param {string}  identity  DID to set the attribute in
-   * @param {string}  key  Attribute key
-   */
-  async getAttribute(identity: string, key: string) {
-    const identityAddr = BlockchainManager.getDidAddress(identity);
-    const options: Options = {from: identityAddr, gasPrice: undefined, gas: undefined};
-    const contract = BlockchainManager.getDidContract(options);
-    const keyBytes = web3.utils.fromAscii(key);
-
-    let previousChange = await contract.methods.changed(identityAddr).call();
-    let event;
-    while (parseInt(previousChange)) {
-      const events = await contract.getPastEvents("DIDAttributeChanged", {
-        fromBlock: previousChange, toBlock: previousChange,
-        filter: {identity: identityAddr}
-      });
-
-      if (events.length == 0)
-        return undefined;
-
-      event = events[0].returnValues;
-      previousChange = 0;
-      const eventKeyBytes = event.name.substring(0, keyBytes.length);
-      if (eventKeyBytes !== keyBytes) {
-        previousChange = event.previousChange;
-        event = undefined;
-      }
-    }
-
-    return event;
-  }
-
-
   /**
    * Creates a JWT from a base payload with the information to encode
    * @param {string}  issuerDid  Issuer DID
