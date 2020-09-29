@@ -1,5 +1,5 @@
 {
-  "name": "DIDI-SSI-Blockchain-Manager",
+  "name": "didi-blockchain-manager",
   "version": "1.0.0",
   "dependencies": {
     "@babel/core": "^7.11.6",
