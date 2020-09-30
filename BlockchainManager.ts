@@ -51,6 +51,7 @@ export class BlockchainManager {
    * @returns {number}
    */
   async getGasLimit(method, options) {
+    // 21000 is a recommended number
     return Math.max(await method.estimateGas(options), 21000);
   }
 
