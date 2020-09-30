@@ -43,6 +43,7 @@ export class BlockchainManager {
    */
   async getGasPrice() {
     const lastBlock = await web3.eth.getBlock("latest");
+    // 1.1 representes a 10% more of the minimumGasPrice collected
     return Math.round(parseInt(lastBlock.minimumGasPrice) * 1.1);
   }
 
