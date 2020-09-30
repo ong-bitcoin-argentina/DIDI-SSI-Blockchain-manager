@@ -73,7 +73,7 @@ export class BlockchainManager {
    * @returns {string}
    */
   static getDidAddress(did) {
-    let cleanDid = did.split(":");
+    const cleanDid = did.split(":");
     return cleanDid[cleanDid.length - 1];
   }
 
