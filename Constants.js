@@ -7,6 +7,9 @@ const ATTRIBUTE_VALIDITY = process.env.BLOCK_CHAIN_ATTRIBUTE_VALIDITY || 1300000
 
 
 // Test constants
+const TEST_NODE_URL = process.env.TEST_NODE_URL;
+const TEST_GAS_PRICE = process.env.TEST_GAS_PRICE || 10000;
+const TEST_BLOCK_CHAIN_CONTRACT = process.env.TEST_BLOCK_CHAIN_CONTRACT;
 const TEST_ISSUER_DID = process.env.TEST_ISSUER_DID || "did:ethr:0xfddb211f40df15e69b400566e59c89f2728ea41f";
 const TEST_ISSUER_PRIV_KEY = process.env.TEST_ISSUER_PRIV_KEY || "6c7c7d94c543b949bb2f6c8627d32dedf9ecba5e818fa776c39b03f797a81d0d";
 
@@ -19,9 +22,14 @@ module.exports = {
   },
 
   TESTS: {
+    NODE_URL: TEST_NODE_URL,
     ISSUER_IDENTITY: {
       DID: TEST_ISSUER_DID,
       PRIV_KEY: TEST_ISSUER_PRIV_KEY
+    },
+    BMConfig: {
+      gasPrice: TEST_GAS_PRICE,
+      providerConfig: {rpcUrl: TEST_NODE_URL, registry: TEST_BLOCK_CHAIN_CONTRACT}
     }
   }
 }

@@ -4,15 +4,6 @@ const {BlockchainManager} = require("../BlockchainManager");
 const {TESTS} = require("../Constants");
 const {Credentials} = require('uport-credentials');
 
-
-const BLOCK_CHAIN_URL = "http://45.79.211.34:4444"; // RSK
-const BLOCK_CHAIN_CONTRACT = "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b";
-
-const config = {
-  gasPrice: 10000,
-  providerConfig: {rpcUrl: BLOCK_CHAIN_URL, registry: BLOCK_CHAIN_CONTRACT}
-}
-
 let blockchainManager;
 const issuerIdentity = {
   did: TESTS.ISSUER_IDENTITY.DID,
@@ -22,9 +13,8 @@ const issuerIdentity = {
 let delegateIdentity;
 let delegateTx;
 
-
 function initializeBlockchainManager() {
-  blockchainManager = new BlockchainManager(config);
+  blockchainManager = new BlockchainManager(TESTS.BMConfig);
 }
 
 function createIdentities() {
