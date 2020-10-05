@@ -9,18 +9,18 @@ const Web3 = require('web3');
 const provider = new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.BLOCK_CHAIN_URL);
 const web3 = new Web3(provider);
 
-interface BlockchainManagerConfig {
+export interface BlockchainManagerConfig {
   gasPrice: number,
   providerConfig: any
 }
 
-interface Options {
+export interface Options {
   from: string,
   gasPrice: number,
   gas: number
 }
 
-interface Identity {
+export interface Identity {
   did: string,
   privateKey: string
 }
