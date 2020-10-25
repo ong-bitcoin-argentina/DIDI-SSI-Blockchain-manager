@@ -1,16 +1,10 @@
-import { beforeEach, describe, it } from "@jest/globals";
-
-require("dotenv").config();
-
-const { BlockchainManager } = require("../BlockchainManager");
-const { Credentials } = require("uport-credentials");
-
-const BLOCK_CHAIN_URL = process.env.BLOCK_CHAIN_URL; // RSK
-const BLOCK_CHAIN_CONTRACT = process.env.BLOCK_CHAIN_CONTRACT;
+const Constants = require('./constants/Constants');
+const { BlockchainManager } = require("../src/BlockchainManager");
+const { Credentials } = require('uport-credentials');
 
 const config = {
   gasPrice: 10000,
-  providerConfig: { rpcUrl: BLOCK_CHAIN_URL, registry: BLOCK_CHAIN_CONTRACT },
+  providerConfig: Constants.BLOCKCHAIN.PROVIDER_CONFIG,
 };
 
 let blockchainManager;
@@ -26,8 +20,8 @@ function initializeBlockchainManager() {
 async function createJWT() {
   identity = Credentials.createIdentity();
   signer = blockchainManager.getSigner(identity.privateKey);
-  payload = { name: "TEST" };
-  jwt = await blockchainManager.createJWT(identity.did, { ...payload }, signer);
+  payload = { name: 'TEST' };
+  jwt = await blockchainManager.createJWT(identity.did, identity.privateKey, { ...payload });
 }
 
 beforeEach(async () => {
@@ -35,28 +29,24 @@ beforeEach(async () => {
   await createJWT();
 });
 
-describe("Blockchain JWT", () => {
-  it("should match jwt string", () => {
-    return blockchainManager.verifyJWT(jwt).then((result) => {
-      expect(result.jwt).toEqual(jwt);
-    });
+describe('Blockchain JWT', () => {
+  it('should match jwt string', async  () => {
+    const result = await blockchainManager.verifyJWT(jwt);
+    expect(result.jwt).toEqual(jwt);
   });
 
-  it("should contain the payload", () => {
-    return blockchainManager.verifyJWT(jwt).then((result) => {
-      expect(result.payload).toEqual(expect.objectContaining(payload));
-    });
+  it('should contain the payload', async () => {
+    const result = await blockchainManager.verifyJWT(jwt);
+    expect(result.payload).toEqual(expect.objectContaining(payload));
   });
 
-  it("should have the did as the issuer", () => {
-    return blockchainManager.verifyJWT(jwt).then((result) => {
-      expect(result.issuer).toEqual(identity.did);
-    });
+  it('should have the did as the issuer', async () => {
+    const result = await blockchainManager.verifyJWT(jwt);
+    expect(result.issuer).toEqual(identity.did);
   });
 
-  it("should have the same payload", async () => {
-    return blockchainManager.verifyJWT(jwt).then((result) => {
-      expect(result.doc).toBeDefined();
-    });
+  it('should have the same payload', async () => {
+    const result = await blockchainManager.verifyJWT(jwt);
+    expect(result.doc).toBeDefined();    
   });
 });

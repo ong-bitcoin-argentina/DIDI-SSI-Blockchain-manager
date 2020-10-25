@@ -1,15 +1,53 @@
 import { Resolver } from "did-resolver";
-import { Signer } from "did-jwt/src/JWT";
+import Web3 from "web3";
 
-const Constants = require("./Constants");
+// import DidRegistryContract from "ethr-did-registry";
 const DidRegistryContract = require("ethr-did-registry");
-const { delegateTypes, getResolver } = require("ethr-did-resolver");
+
+// import didJWT from "did-jwt";
 const didJWT = require("did-jwt");
-const Web3 = require("web3");
-const provider = new Web3.providers.HttpProvider(
-  Constants.BLOCKCHAIN.BLOCK_CHAIN_URL
-);
-const web3 = new Web3(provider);
+
+const { delegateTypes, getResolver } = require("ethr-did-resolver");
+
+let web3 = null,
+  provider = null,
+  blockchainContract = null;
+
+const blockChainSelector = (
+  networkConfig: { name: string; rpcUrl: string; registry: string }[],
+  did: string
+) => {
+  // const blockChainSelector = (networkConfig, did) => {
+  let routerCharPos = -1,
+    index = -1,
+    i = 1;
+  let searchArray = true;
+
+  const noUportPrefixDid = did.slice(9, did.length);
+  routerCharPos = noUportPrefixDid.search(":"); // if routerCharPos > 0 there's another prefix, should search the provider array
+  if (routerCharPos === -1) {
+    // if not, connect directly to mainnet
+    searchArray = false;
+    index = 0;
+  }
+
+  while (i < networkConfig.length && searchArray) {
+    routerCharPos = did.search(networkConfig[i].name);
+    if (routerCharPos > 0) {
+      index = i; // saves index for connection later
+      searchArray = false;
+    } else i++; // provider not found, keep going through array
+  }
+
+  if (index >= 0) {
+    provider = new Web3.providers.HttpProvider(networkConfig[index].rpcUrl);
+    web3 = new Web3(provider);
+    blockchainContract = networkConfig[index].registry;
+    return null;
+  } else {
+    throw "Invalid Provider Prefix";
+  }
+};
 
 interface BlockchainManagerConfig {
   gasPrice: number;
@@ -18,22 +56,23 @@ interface BlockchainManagerConfig {
 
 interface Options {
   from: string;
-  gasPrice: number;
-  gas: number;
+  gasPrice?: number;
+  gas?: number;
 }
 
 interface Identity {
   did: string;
   privateKey: string;
 }
-
 export class BlockchainManager {
   config: BlockchainManagerConfig;
   didResolver: Resolver;
+  gas_increment: number;
 
-  constructor(config: BlockchainManagerConfig) {
+  constructor(config: BlockchainManagerConfig, gas_increment: number) {
     this.config = config;
     this.didResolver = new Resolver(getResolver(config.providerConfig));
+    this.gas_increment = gas_increment;
   }
 
   static delegateType = delegateTypes.Secp256k1SignatureAuthentication2018;
@@ -45,7 +84,8 @@ export class BlockchainManager {
   async getGasPrice() {
     const lastBlock = await web3.eth.getBlock("latest");
     // 1.1 representes a 10% more of the minimumGasPrice collected
-    return Math.round(parseInt(lastBlock.minimumGasPrice) * 1.1);
+    // return Math.round(parseInt(lastBlock.minimumGasPrice) * 1.1);
+    return Math.round(parseInt(lastBlock.getGasPrice) * this.gas_increment);
   }
 
   /**
@@ -63,14 +103,9 @@ export class BlockchainManager {
    * @returns {Contract}
    */
   static getDidContract(options) {
-    return new web3.eth.Contract(
-      DidRegistryContract.abi,
-      Constants.BLOCKCHAIN.BLOCK_CHAIN_CONTRACT,
-      {
-        from: options.from,
-        gasLimit: 3000000,
-      }
-    );
+    return new web3.eth.Contract(DidRegistryContract.abi, blockchainContract, {
+      from: options.from,
+    });
   }
 
   /**
@@ -78,7 +113,7 @@ export class BlockchainManager {
    * @param {string}  did  Did to extract the address from
    * @returns {string}
    */
-  static getDidAddress(did) {
+  static getDidAddress(did: string) {
     const cleanDid = did.split(":");
     return cleanDid[cleanDid.length - 1];
   }
@@ -87,19 +122,16 @@ export class BlockchainManager {
    * Add delegateDID as a delegate of identity
    * @param {Identity}  identity
    * @param {string}  delegateDID
-   * @param {number}  validity
+   * @param {string}  validity
    */
-  async addDelegate(
-    identity: Identity,
-    delegateDID: string,
-    validity: number = Constants.BLOCKCHAIN.DELEGATE_VALIDITY
-  ) {
+  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
+    blockChainSelector(this.config.providerConfig.networks, delegateDID);
+
     const identityAddr = BlockchainManager.getDidAddress(identity.did);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
+
     const options: Options = {
       from: identityAddr,
-      gas: undefined,
-      gasPrice: undefined,
     };
     const contract = BlockchainManager.getDidContract(options);
     const account = web3.eth.accounts.privateKeyToAccount(identity.privateKey);
@@ -120,13 +152,14 @@ export class BlockchainManager {
    * @param {Identity}  identity
    * @param {string}  delegateDID
    */
-  async validateDelegate(identity: Identity, delegateDID: string) {
-    const identityAddr = BlockchainManager.getDidAddress(identity.did);
+  async validateDelegate(identity: string, delegateDID: string) {
+    const identityAddr = BlockchainManager.getDidAddress(identity);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
+
+    blockChainSelector(this.config.providerConfig.networks, delegateDID);
+
     const options: Options = {
       from: identityAddr,
-      gas: undefined,
-      gasPrice: undefined,
     };
     const contract = BlockchainManager.getDidContract(options);
     const validDelegateMethod = contract.methods.validDelegate(
@@ -141,33 +174,39 @@ export class BlockchainManager {
    * Resolve a DID document
    * @param {string} did DID to resolve its document
    */
-  async resolveDidDocument(did) {
-    return this.didResolver.resolve(did);
+  // async resolveDidDocument(did: string, config: { providerConfig: any }) {
+  async resolveDidDocument(did: string) {
+    const resolvedDid = await this.didResolver.resolve(did);
+    return resolvedDid;
   }
 
   /**
    * Creates a JWT from a base payload with the information to encode
    * @param {string}  issuerDid  Issuer DID
    * @param {object}  payload  Information of the JWT
-   * @param {Signer}  signer  Signer of the JWT [More info]{@link https://github.com/decentralized-identity/did-jwt}
+   * @param {string}  pkey  Information of the PK
    * @param {number}  expiration  Expiration of the JWT in [NumericDate]{@link https://tools.ietf.org/html/rfc7519#section-2}
    * @param {string}  audienceDID  DID of the audience of the JWT
    * @returns {string}  JWT's string
    */
+
   async createJWT(
     issuerDid: string,
+    pkey: string,
     payload: any,
-    signer: Signer,
     expiration: number = undefined,
     audienceDID: string = undefined
   ) {
     payload.exp = expiration;
     payload.aud = audienceDID;
-    return await didJWT.createJWT(payload, {
+
+    const signer = didJWT.SimpleSigner(pkey);
+    const response = await didJWT.createJWT(payload, {
       alg: "ES256K-R",
       issuer: issuerDid,
       signer,
     });
+    return response;
   }
 
   /**
