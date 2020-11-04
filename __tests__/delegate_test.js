@@ -1,6 +1,9 @@
 const Constants = require("./constants/Constants");
-const { BlockchainManager } = require("../src/BlockchainManager");
-const { Credentials } = require("uport-credentials");
+const { addPrefix } = require("../src/BlockchainManager");
+const {
+  initializeBlockchainManager,
+  createIdentity,
+} = require("./utils/utils");
 
 const config = {
   gasPrice: 10000,
@@ -9,25 +12,12 @@ const config = {
 
 let blockchainManager;
 const issuerIdentity = {
-  did: process.env.TEST_ISSUER_DID,
-  privateKey: process.env.TEST_ISSUER_PRIV_KEY,
+  did: process.env.DELEGATOR_DID,
+  privateKey: process.env.DELEGATOR_PRIV_KEY,
 };
 
 let delegateIdentity;
 let delegateTx;
-
-function initializeBlockchainManager() {
-  blockchainManager = new BlockchainManager(config);
-}
-
-function createIdentities() {
-  delegateIdentity = Credentials.createIdentity();
-}
-
-function addPrefix(prefixToAdd, did) {
-  const prefixDid = did.slice(0, 9) + prefixToAdd + did.slice(9, did.length);
-  return prefixDid;
-}
 
 async function addDelegation(prefixToAdd) {
   const did = delegateIdentity.did;
@@ -43,12 +33,10 @@ async function addDelegation(prefixToAdd) {
 
 describe("BlockchainManager Delegation", () => {
   describe("On ANY blochchain should", () => {
-    beforeAll(async () => {
-      initializeBlockchainManager();
-      createIdentities();
-    });
+    blockchainManager = initializeBlockchainManager(config);
+    delegateIdentity = createIdentity();
 
-    it("fail when invalid prefix is received", async () => {      
+    it("fail when invalid prefix is received", async () => {
       const prefixToAdd = "invalid:";
       try {
         await addDelegation(prefixToAdd);
@@ -59,10 +47,8 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On MAINNET should", () => {
-    beforeAll(async () => {
-      initializeBlockchainManager();
-      createIdentities();
-    });
+    blockchainManager = initializeBlockchainManager(config);
+    delegateIdentity = createIdentity();
 
     it("be able to addDelegate on MAINNET", async () => {
       const prefixToAdd = "";
@@ -82,7 +68,7 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("Fail verification when delegation does not exists on MAINNET", async () => {
-      const otherIdentity = Credentials.createIdentity();
+      const otherIdentity = createIdentity();
       const prefixToAdd = "";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
@@ -94,10 +80,8 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On RSK should", () => {
-    beforeAll(async () => {
-      initializeBlockchainManager();
-      createIdentities();
-    });
+    blockchainManager = initializeBlockchainManager(config);
+    delegateIdentity = createIdentity();
 
     it("be able to addDelegate on RSK", async () => {
       const prefixToAdd = "rsk:";
@@ -117,7 +101,7 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("Fail verification when delegation does not exists on RSK", async () => {
-      const otherIdentity = Credentials.createIdentity();
+      const otherIdentity = createIdentity();
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
@@ -129,10 +113,8 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On LACCHAIN should", () => {
-    beforeAll(async () => {
-      initializeBlockchainManager();
-      createIdentities();
-    });
+    blockchainManager = initializeBlockchainManager(config);
+    delegateIdentity = createIdentity();
 
     it("be able to addDelegate on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
@@ -152,7 +134,7 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("Fail verification when delegation does not exists on LACCHAIN", async () => {
-      const otherIdentity = Credentials.createIdentity();
+      const otherIdentity = createIdentity();
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
@@ -164,10 +146,8 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On BFA should", () => {
-    beforeAll(async () => {
-      initializeBlockchainManager();
-      createIdentities();
-    });
+    blockchainManager = initializeBlockchainManager(config);
+    delegateIdentity = createIdentity();
 
     it("be able to addDelegate on BFA", async () => {
       const prefixToAdd = "bfa:";
@@ -187,7 +167,7 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("Fail verification when delegation does not exists on BFA", async () => {
-      const otherIdentity = Credentials.createIdentity();
+      const otherIdentity = createIdentity();
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(

@@ -49,6 +49,13 @@ const PROVIDER_CONFIG = {
   ],
 };
 
+const CREDENTIALS = {
+  types: {
+    verifiable: "VerifiableCredential"
+  },
+  context: "https://www.w3.org/2018/credentials/v1"
+};
+
 module.exports = {
   BLOCKCHAIN: {
     DELEGATE_DURATION: DELEGATE_DURATION,
@@ -56,4 +63,5 @@ module.exports = {
     PROVIDER_CONFIG: PROVIDER_CONFIG,
     GAS_INCREMENT: GAS_INCREMENT
   },
+  CREDENTIALS: CREDENTIALS
 };

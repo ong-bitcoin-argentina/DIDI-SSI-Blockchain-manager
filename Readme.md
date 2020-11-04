@@ -61,54 +61,6 @@ PROVIDER_CONFIG = {
 **Gas Increment** value to increase the gas in the transaction for safeguard. By default is 1.1 (10%). This value can be defined in 
 the ENV file as *GAS_INCREMENT*
 
-
-
-#### .env Example
-
-
-```
-# Gas Incremental
-GAS_INCREMENT=1.1
-
-# Delegate Atributes
-BLOCKCHAIN_DELEGATE_DURATION=8640000
-BLOCKCHAIN_ATTRIBUTE_VALIDITY=9999999
-
-# DIDs TESTS VARIABLES
-TEST_ISSUER_DID='0x0d0fa2cd3813412e94597103dbf715c7afb8c038'
-TEST_ISSUER_PRIV_KEY='XXXXXXXXXX75ed5dc0e4132a658ga328dbb06XXXXXXXXXX'
-
-###############
-
-# ETH Rinkeby
-BLOCKCHAIN_URL_MAIN='https://rinkeby.infura.io/v3/5dcd1d1dbdec862f858'
-
-# RSK
-BLOCKCHAIN_URL_RSK='http://54.75.122.43:4433'
-
-## Lacchain
-BLOCKCHAIN_URL_LAC='http://54.97.525.642:5454'
-
-## BFA testnet
-BLOCKCHAIN_URL_BFA='http://60.225.64.742:5854'
-
-  
-## uPort ON MAINNET
-BLOCKCHAIN_CONTRACT_MAIN=0xdca7ef03e98e0dc2b855be647c39aXXXXXXXXXX
-
-## uPort SC ON RSK and Eth
-BLOCKCHAIN_CONTRACT_RSK=0xdca7ef03e98e0dc2b855be647c39abXXXXXXXXXX
-
-## uPort SC ON Lacchain
-BLOCKCHAIN_CONTRACT_LAC=0x488C83c4D1dDCF8f3696273eCcf0FfXXXXXXXXXX
-
-## uPort SC ON BFA
-BLOCKCHAIN_CONTRACT_BFA=0x0b2b8e138c38f4ca844dc79d4c0042XXXXXXXXXX
-```
-
-This JSON is used by **BlockchainManagerConfig** to know to what blockchain needs to connect.
-
-
 ### Methods
 
 #### addDelegate

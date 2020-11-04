@@ -1,6 +1,9 @@
 const Constants = require("./constants/Constants");
-const { BlockchainManager } = require("../src/BlockchainManager");
-const { Credentials } = require("uport-credentials");
+const { addPrefix } = require("../src/BlockchainManager");
+const {
+  initializeBlockchainManager,
+  createIdentity,
+} = require("./utils/utils");
 
 const config = {
   gasPrice: 10000,
@@ -8,23 +11,11 @@ const config = {
 };
 
 let identity;
-function createIdentity() {
-  identity = Credentials.createIdentity();
-}
-
 let blockchainManager;
-function initializeBlockchainManager() {
-  blockchainManager = new BlockchainManager(config);
-}
-
-function addPrefix(prefixToAdd, did) {
-  const prefixDid = did.slice(0, 9) + prefixToAdd + did.slice(9, did.length);
-  return prefixDid;
-}
 
 beforeEach(() => {
-  initializeBlockchainManager();
-  createIdentity();
+  identity = createIdentity();
+  blockchainManager = initializeBlockchainManager(config);
 });
 
 describe("BlockchainManager should", () => {
