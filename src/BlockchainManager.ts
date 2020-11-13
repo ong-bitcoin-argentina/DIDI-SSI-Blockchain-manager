@@ -28,7 +28,9 @@ const blockChainSelector = (
     if (routerCharPos > 0) {
       index = i; // saves index for connection later
       searchArray = false;
-    } else i++; // provider not found, keep going through array
+    } else {
+      i++; // provider not found, keep going through array
+    }
   }
 
   let blockchainToConnect = {
@@ -54,8 +56,9 @@ const checkPrefix = function (prefix, networkArray) {
   let i = 0,
     notFounded = true;
   while (i < networkArray.length && notFounded) {
-    if (prefix === networkArray[i].name) notFounded = false;
-    else {
+    if (prefix === networkArray[i].name) {
+      notFounded = false;
+    } else {
       i++;
     }
   }
@@ -286,7 +289,9 @@ export class BlockchainManager {
       address: prefixedDid,
       privateKey: issuerPkey,
     });
-    const date = expirationDate ? (new Date(expirationDate).getTime() / 1000) | 0 : undefined;
+    const date = expirationDate 
+      ? (new Date(expirationDate).getTime() / 1000) | 0 
+      : undefined;
 
     const vcPayload = {
       sub: subjectDid,
@@ -297,7 +302,9 @@ export class BlockchainManager {
       },
     };
 
-    if (expirationDate) vcPayload["exp"] = date;
+    if (expirationDate) {
+      vcPayload["exp"] = date;
+    }
     const result = await createVerifiableCredential(vcPayload, vcIssuer);
     return result;
   }
@@ -316,8 +323,9 @@ export class BlockchainManager {
         prefixToAdd,
         this.config.providerConfig.networks
       );
-      if (!prefixChecked)
+      if (!prefixChecked) {
         throw "Invalid Prefix - Check Provider Network Configuration";
+      }
     }
     const credential = Credentials.createIdentity();
 
