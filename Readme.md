@@ -4,6 +4,8 @@ This library is intented to support multiblockchain configuration for the functi
 Based on the received DID and its prefix, it will select the blockchain to connect and support the uPort functions.
 Below there is a description of how to implement it.
 
+<hr style="border:1px solid gray"> </hr>
+
 ## Class Name
 **BlockchainManagerConfig**
 
@@ -61,9 +63,11 @@ PROVIDER_CONFIG = {
 **Gas Increment** value to increase the gas in the transaction for safeguard. By default is 1.1 (10%). This value can be defined in 
 the ENV file as *GAS_INCREMENT*
 
-### Methods
+<hr style="border:1px solid gray"> </hr>
 
-#### addDelegate
+### **M E T H O D S** 
+
+#### METHOD: **addDelegate**
 This method will add a delegation from the issuer to a certain address to be the new signer. It will write the transaction in the blockchain
 
 It will receive:
@@ -80,16 +84,19 @@ issuerIdentity = {
 };
 ```
 <br>
+
 **delegateDID**: a STRING containing the DID with the correct prefix to route into that specific blockchain
 
     did:ethr:rsk:0x0d0fa2cd3813412e94597103dbf715c7afb8c038
     The above DID will route to the variable specified in rsk
 <br>
+
 **validity**: a NUMBER with the amount of time will last the delegation until expired 
 
 More info [here](https://developer.uport.me/ethr-did/docs/guides/index#manage-keys)
-<br><br>
-#### validateDelegate
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **validateDelegate**
 This method will validate a previous delegation written in the blockchain
 
 It will receive:
@@ -100,8 +107,9 @@ It will receive:
 **delegateDID**: a STRING containing an address, the DELEGATED  
 
 More info [here](https://developer.uport.me/ethr-did/docs/guides/index#manage-keys)
-<br><br>
-#### resolveDidDocument
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **resolveDidDocument**
 This methor will resolve the DID document entered as a parameter.
 
 It will receive:
@@ -114,8 +122,9 @@ It will receive:
 When instanciating the CLASS the providerConfig object was already passed, so the method has the information to route correctly.
 
 More info [here](https://developer.uport.me/ethr-did/docs/reference/index#did-method)
-<br><br>
-#### createJWT
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **createJWT**
 This method will create a JWT 
 
 It will receive:
@@ -132,8 +141,9 @@ It will receive:
 **audience**: a STRING - TBD  
 
 More info [here](https://developer.uport.me/ethr-did/docs/guides/index#manage-keys)
-<br><br>
-#### verifyJWT
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **verifyJWT**
 This method will verify a JWT
 
 It will receive:
@@ -145,3 +155,74 @@ It will receive:
 **audience**: a STRING - TBD
 
 More info [here](https://developer.uport.me/ethr-did/docs/guides/index#manage-keys)
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **decodeJWT**
+This method will decode a JWT
+
+It will receive:
+* JWT
+
+More Info [here](https://github.com/decentralized-identity/did-jwt)
+
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **createCertificate**
+Signs and returns a JWT from a created credential
+
+It will receive:
+* Subject Did
+* Subject Credential
+* Expiration Date
+* Issuer Did
+* issuer PrivateKey
+
+**Subject Did**: Did of the subject of the credential
+**Expiration Date**: Expiration date of the credential
+**Issuer Did**: Issuer of the Credential
+**Issuer PrivateKey**: Private Key of the Issuer
+**Subject Credential**: an object containing the data of the credential as below
+```
+const personData = {
+  dni: 12345678,
+  names: "Homero",
+  lastNames: "Simpson",
+  nationality: "Argentina",
+};
+```
+```
+const subject = {
+  DatosPersonales: {
+    preview: {
+      fields: ["dni", "names", "lastNames", "nationality"],
+      type: 2,
+    },
+    category: "identity",
+    data: personData,
+  },
+};
+```
+
+More Info [here](https://github.com/decentralized-identity/did-jwt-vc)
+
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **verifyCertificate**
+Verifies a created Certificate
+
+It will receive:
+* JWT of the created certificate
+
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **createIdentity**
+Create an Identity with DID and Private KEY
+
+It will receive:
+* Prefix to add for the Did
+
+Returns:
+* ```did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984ffg32c``` If the prefix is ```lacchain```
+* ```did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984ffg32c``` If the prefix is ```rsk```
+
+<hr style="border:1px solid gray"> </hr>
