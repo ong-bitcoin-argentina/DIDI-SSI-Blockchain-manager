@@ -12,9 +12,10 @@ Below there is a description of how to implement it.
 
 ### Parameters to instanciate the class
 
-The class takes two parameters:
-* An object containing: { gasPrice: number, providerConfig: { object: PROVIDER_CONFIG} }
-* The gas incremental value for safeguard the transactions: a number
+The class takes three parameters:
+* **config**: An object containing: { gasPrice: number, providerConfig: { object: PROVIDER_CONFIG} }
+* **gasSafetyValue**: A safety value to increment the gas to prevent the estimation getting short (type number)
+* **gasPriceSafetyValue**: A safety value to increment the gas price for the same reason (type number)
     
 **gasPrice**: It's the gas price. For testing purposes a value of 10000 can be safely used.
 
@@ -107,6 +108,19 @@ It will receive:
 **delegateDID**: a STRING containing an address, the DELEGATED  
 
 More info [here](https://developer.uport.me/ethr-did/docs/guides/index#manage-keys)
+<hr style="border:1px solid gray"> </hr>
+
+#### METHOD: **revokeDelegate**
+Revoke a previous added delegation
+
+It will receive:
+* issuerCredentials
+* delegatedDID
+
+**issuerCredentials**: The address and private key of the former issuer (type Identity)
+**delegatedDID**: The did of the delegated to revoke (type string)
+
+More info [here](https://developer.uport.me/ethr-did/docs/guides/index)
 <hr style="border:1px solid gray"> </hr>
 
 #### METHOD: **resolveDidDocument**
@@ -226,3 +240,4 @@ Returns:
 * ```did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984ffg32c``` If the prefix is ```rsk```
 
 <hr style="border:1px solid gray"> </hr>
+

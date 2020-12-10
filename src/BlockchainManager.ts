@@ -83,12 +83,15 @@ interface Identity {
 export class BlockchainManager {
   config: BlockchainManagerConfig;
   didResolver: Resolver;
-  gasIncrement: number;
+  gasSafetyValue?: number;
+  gasPriceSafetyValue?: number;
+  
 
-  constructor(config: BlockchainManagerConfig, gasIncrement: number) {
+  constructor(config: BlockchainManagerConfig, gasSafetyValue: number, gasPriceSafetyValue: number) {
     this.config = config;
-    this.didResolver = new Resolver(getResolver(config.providerConfig));
-    this.gasIncrement = gasIncrement;
+    this.didResolver = new Resolver(getResolver(config.providerConfig));    
+    this.gasSafetyValue = gasSafetyValue || 1.2;
+    this.gasPriceSafetyValue = gasPriceSafetyValue || 1.1;
   }
 
   static delegateType = delegateTypes.Secp256k1SignatureAuthentication2018;
@@ -99,7 +102,8 @@ export class BlockchainManager {
    */
   async getGasPrice(web3) {
     const gasPrice = await web3.eth.getGasPrice();
-    return Math.round(parseInt(gasPrice) * this.gasIncrement);
+    const retGasPrice = Math.round(parseInt(gasPrice) * this.gasPriceSafetyValue);
+    return retGasPrice;
   }
 
   /**
@@ -108,7 +112,8 @@ export class BlockchainManager {
    */
   async getGasLimit(method, options) {
     // 21000 is a recommended number
-    return Math.max(await method.estimateGas(options), 21000);
+    const gasQty = Math.round(Math.max(await method.estimateGas(options), 21000) * this.gasSafetyValue);
+    return gasQty;
   }
 
   /**
@@ -169,6 +174,7 @@ export class BlockchainManager {
       delegateAddr,
       validity
     );
+
     options.gas = await this.getGasLimit(addDelegateMethod, options);
     options.gasPrice = await this.getGasPrice(web3);
 
@@ -208,6 +214,7 @@ export class BlockchainManager {
       BlockchainManager.delegateType,
       delegateAddr
     );
+
     return validDelegateMethod.call(options);
   }
 
@@ -289,8 +296,8 @@ export class BlockchainManager {
       address: prefixedDid,
       privateKey: issuerPkey,
     });
-    const date = expirationDate 
-      ? (new Date(expirationDate).getTime() / 1000) | 0 
+    const date = expirationDate
+      ? (new Date(expirationDate).getTime() / 1000) | 0
       : undefined;
 
     const vcPayload = {
@@ -334,5 +341,50 @@ export class BlockchainManager {
       credential.did = prefixedDid;
     }
     return credential;
+  }
+
+  // revoke delegation from "sourceDelegationDid" to "delegatedDID" if exsits
+  async revokeDelegate(issuerCredentials, delegatedDID) {
+    const blockchainToConnect = blockChainSelector(
+      this.config.providerConfig.networks,
+      delegatedDID
+    );
+
+    const provider = new Web3.providers.HttpProvider(
+      blockchainToConnect.provider
+    );
+    const web3 = new Web3(provider);
+
+    const sourceAddress = BlockchainManager.getDidAddress(
+      issuerCredentials.did
+    );
+    const targetAddress = BlockchainManager.getDidAddress(delegatedDID);
+
+    const options: Options = {
+      from: sourceAddress,
+    };
+
+    const contract = BlockchainManager.getDidContract(
+      options,
+      blockchainToConnect.address,
+      web3
+    );
+
+    const account = web3.eth.accounts.privateKeyToAccount(
+      issuerCredentials.privateKey
+    );
+    web3.eth.accounts.wallet.add(account);
+
+    const revokeDelegateMethod = contract.methods.revokeDelegate(
+      sourceAddress,
+      BlockchainManager.delegateType,
+      targetAddress
+    );
+    options.gas = await this.getGasLimit(revokeDelegateMethod, options);
+    options.gasPrice = await this.getGasPrice(web3);
+
+    const revokeMethodSent = await revokeDelegateMethod.send(options);
+    web3.eth.accounts.wallet.remove(account.address);
+    return revokeMethodSent;
   }
 }
