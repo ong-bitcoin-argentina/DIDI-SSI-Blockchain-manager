@@ -1,3 +1,25 @@
+////////////////////////////////////////////////////////////////////////////////////
+// INTEGRATION TESTS:                                                             //
+//                                                                                //
+// These tests run in real blockchain networks. This feature must be configured   //
+// using the PROVIDER_CONFIG object.                                              //
+// Each blockchain contract must be already deployed in the belonging network,    //
+// and for private networks, the corresponding node must be up and running.       //
+// These configuration properties must be added in the .env as described in       //
+// the README file of this repository.                                            //
+//                                                                                //
+// These tests verify the following methods:                                      //
+// - verifyJWT                                                                    //
+// - decodeJWT                                                                    //
+// - createCertificate                                                            //
+// - verifyCertificate                                                            //
+//                                                                                //
+// To run these tests you must have a DELEGATOR DID address and its private key   //
+// with some $$$ in it, to execute the transaction and pay the fee.               //
+// This info must be added also in the .env file. (check out README file)         //
+////////////////////////////////////////////////////////////////////////////////////
+
+
 const Constants = require("./constants/Constants");
 const { initializeBlockchainManager } = require("./utils/utils");
 
