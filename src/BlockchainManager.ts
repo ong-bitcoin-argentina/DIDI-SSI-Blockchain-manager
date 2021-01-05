@@ -74,6 +74,7 @@ interface Options {
   from: string;
   gasPrice?: number;
   gas?: number;
+  nonce?: number;
 }
 
 interface Identity {
@@ -85,11 +86,14 @@ export class BlockchainManager {
   didResolver: Resolver;
   gasSafetyValue?: number;
   gasPriceSafetyValue?: number;
-  
 
-  constructor(config: BlockchainManagerConfig, gasSafetyValue: number, gasPriceSafetyValue: number) {
+  constructor(
+    config: BlockchainManagerConfig,
+    gasSafetyValue: number,
+    gasPriceSafetyValue: number
+  ) {
     this.config = config;
-    this.didResolver = new Resolver(getResolver(config.providerConfig));    
+    this.didResolver = new Resolver(getResolver(config.providerConfig));
     this.gasSafetyValue = gasSafetyValue || 1.2;
     this.gasPriceSafetyValue = gasPriceSafetyValue || 1.1;
   }
@@ -102,7 +106,9 @@ export class BlockchainManager {
    */
   async getGasPrice(web3) {
     const gasPrice = await web3.eth.getGasPrice();
-    const retGasPrice = Math.round(parseInt(gasPrice) * this.gasPriceSafetyValue);
+    const retGasPrice = Math.round(
+      parseInt(gasPrice) * this.gasPriceSafetyValue
+    );
     return retGasPrice;
   }
 
@@ -112,8 +118,15 @@ export class BlockchainManager {
    */
   async getGasLimit(method, options) {
     // 21000 is a recommended number
-    const gasQty = Math.round(Math.max(await method.estimateGas(options), 21000) * this.gasSafetyValue);
+    const gasQty = Math.round(
+      Math.max(await method.estimateGas(options), 21000) * this.gasSafetyValue
+    );
     return gasQty;
+  }
+
+  async getNonce(web3, senderAddress) {
+    const nonce = await web3.eth.getTransactionCount(senderAddress, 'pending');
+    return nonce;
   }
 
   /**
@@ -177,6 +190,7 @@ export class BlockchainManager {
 
     options.gas = await this.getGasLimit(addDelegateMethod, options);
     options.gasPrice = await this.getGasPrice(web3);
+    options.nonce = await this.getNonce(web3, identityAddr);
 
     const delegateMethodSent = await addDelegateMethod.send(options);
     web3.eth.accounts.wallet.remove(account.address);
