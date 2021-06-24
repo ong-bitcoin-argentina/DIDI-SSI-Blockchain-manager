@@ -3,7 +3,7 @@
 
 module.exports = {
   // timeout
-  testTimeout: 1000*60*4,
+  testTimeout: 15000,
 
   // All imported modules in your tests should be mocked automatically
   // automock: false,
@@ -140,7 +140,7 @@ module.exports = {
   // setupFilesAfterEnv: [],
 
   // The number of seconds after which a test is considered as slow and reported as such in the results.
-  // slowTestThreshold: 5,
+  slowTestThreshold: 5,
 
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   // snapshotSerializers: [],
