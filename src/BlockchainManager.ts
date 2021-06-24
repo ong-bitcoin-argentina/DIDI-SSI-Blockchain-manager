@@ -138,13 +138,20 @@ export class BlockchainManager {
   }
 
   /**
-   * If syning throws #blockchainManager-nodeIsSyncing  
+   * If syncing throws #blockchainManager-nodeIsSyncing  
    * @param web3 
-
    */
   async onlySynced(web3) {
-    const isSyncingResponse = await web3.eth.isSyncing();
-    if (!!isSyncingResponse) throw new Error('#blockchainManager-nodeIsSyncing');
+    try {
+      const isSyncingResponse = await web3.eth.isSyncing();
+      if (!!isSyncingResponse) throw new Error('#blockchainManager-nodeIsSyncing');
+    } catch (e) {
+      // RSK public node don't allow eth_syncing. We assume that is always in sync
+      if(e.message.includes("403 Method Not Allowed")) {
+        return;
+      }
+      throw e;
+    }
   }
 
   /**
