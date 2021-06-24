@@ -138,6 +138,23 @@ export class BlockchainManager {
   }
 
   /**
+   * If syncing throws #blockchainManager-nodeIsSyncing  
+   * @param web3 
+   */
+  async onlySynced(web3) {
+    try {
+      const isSyncingResponse = await web3.eth.isSyncing();
+      if (!!isSyncingResponse) throw new Error('#blockchainManager-nodeIsSyncing');
+    } catch (e) {
+      // RSK public node don't allow eth_syncing. We assume that is always in sync
+      if(e.message.includes("403 Method Not Allowed")) {
+        return;
+      }
+      throw e;
+    }
+  }
+
+  /**
    * Add delegateDID as a delegate of identity
    * @param {Identity}  identity
    * @param {string}  delegateDID
@@ -153,7 +170,7 @@ export class BlockchainManager {
       blockchainToConnect.provider
     );
     const web3 = new Web3(provider);
-
+    await this.onlySynced(web3);
     const identityAddr = BlockchainManager.getDidAddress(identity.did);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
 
@@ -201,6 +218,7 @@ export class BlockchainManager {
     );
     const web3 = new Web3(provider);
 
+    await this.onlySynced(web3);
     const options: Options = {
       from: identityAddr,
     };
