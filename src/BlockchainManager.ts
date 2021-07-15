@@ -254,7 +254,6 @@ export class BlockchainManager {
    * @param {string}  audienceDID  DID of the audience of the JWT
    * @returns {string}  JWT's string
    */
-
   async createJWT(
     issuerDid: string,
     pkey: string,
@@ -294,17 +293,27 @@ export class BlockchainManager {
       audience: audienceDID,
     });
   }
-
+  /**
+   * Waring: Use verifyJWT. Decodes a token and returns the contet.
+   * @param {string}  jwt
+   */
   async decodeJWT(jwt) {
     return didJWT.decodeJWT(jwt);
   }
-
-  // genera un certificado asociando la informacion recibida en "subject" con el did
+  
+  /**
+   * genera un certificado asociando la informacion recibida en "subject" con el did
+   * @param {string} subjectDid This did has this prefix always (did:ethr:) it doesn't change
+   * @param {string} subjectPayload 
+   * @param {Date} expirationDate 
+   * @param {string} issuerDid The issuer might change and has different prefixes
+   * @param {string} issuerPkey 
+   */
   async createCertificate(
-    subjectDid, // this did has this prefix always (did:ethr:) it doesn't change
+    subjectDid,
     subjectPayload,
     expirationDate,
-    issuerDid, // the issuer might change and has different prefixes
+    issuerDid,
     issuerPkey
   ) {
     const cleanDid = issuerDid.split(":");
@@ -333,12 +342,19 @@ export class BlockchainManager {
     const result = await createVerifiableCredential(vcPayload, vcIssuer);
     return result;
   }
-
+  /**
+   * Verifies a credential using the universal resolver. 
+   * @param {string} jwt
+   */
   async verifyCertificate(jwt) {
     const result = await verifyCredential(jwt, this.didResolver);
     return result;
   }
 
+  /**
+   * Given an prefix, genereates new privte and public keys. 
+   * @param {string}  prefixToAdd
+   */
   createIdentity(prefixToAdd) {
     let prefixChecked = false,
       prefixedDid = null;
@@ -361,7 +377,11 @@ export class BlockchainManager {
     return credential;
   }
 
-  // revoke delegation from "sourceDelegationDid" to "delegatedDID" if exsits
+  /**
+   * Revoke delegation
+   * @param {Identity}  issuerCredentials
+   * @param {string}  delegatedDID
+   */
   async revokeDelegate(issuerCredentials, delegatedDID) {
     const blockchainToConnect = blockChainSelector(
       this.config.providerConfig.networks,
