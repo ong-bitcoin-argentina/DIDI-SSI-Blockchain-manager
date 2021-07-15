@@ -2,6 +2,9 @@ language: node_js
 cache:
   npm: false
 script:
-  - npm run lint
-  - npm run typeCheck
-  - npm run test
+- npm run lint
+- npm run typeCheck
+- npm run test
+before_install:
+- openssl aes-256-cbc -K $encrypted_3c84dcdc6bbe_key -iv $encrypted_3c84dcdc6bbe_iv
+  -in .env.enc -out .env -d
