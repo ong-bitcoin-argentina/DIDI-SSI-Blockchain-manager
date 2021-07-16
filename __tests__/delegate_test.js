@@ -76,6 +76,21 @@ describe("BlockchainManager Delegation", () => {
       expect(delegateTx.status).toBeTruthy();
     });
 
+    it("be able to addDelegate 5 times simultaneously on MAINNET", async () => {
+      const prefixToAdd = "";
+      const delegateTxs = [];
+      for (let i = 0; i < 3; i++) {
+        delegateTxs[i] = addDelegation(prefixToAdd, createIdentity());
+      }
+
+      const delegtions = await Promise.all(delegateTxs);
+      for (let i = 0; i < 3; i++) {
+        expect(delegtions[i]).toBeDefined();
+        expect(delegtions[i].status).toBeTruthy();
+      }
+
+    });
+
     it("verify delegation on MAINNET", async () => {
       const prefixToAdd = "";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
@@ -128,6 +143,20 @@ describe("BlockchainManager Delegation", () => {
       const tx = await addDelegation(prefixToAdd, delegateIdentity);
       expect(tx).toBeDefined();
       expect(tx.status).toBeTruthy();
+    });
+
+    it("be able to addDelegate 5 times simultaneously on RSK", async () => {
+      const prefixToAdd = "rsk:";
+      const delegateTxs = [];
+      for (let i = 0; i < 3; i++) {
+        delegateTxs[i] = addDelegation(prefixToAdd, createIdentity());
+      }
+
+      const delegtions = await Promise.all(delegateTxs);
+      for (let i = 0; i < 3; i++) {
+        expect(delegtions[i]).toBeDefined();
+        expect(delegtions[i].status).toBeTruthy();
+      }
     });
 
     it("verify delegation on RSK", async () => {
@@ -184,6 +213,20 @@ describe("BlockchainManager Delegation", () => {
       expect(tx.status).toBeTruthy();
     });
 
+    it("be able to addDelegate 5 times simultaneously on LACCHAIN", async () => {
+      const prefixToAdd = "lacchain:";
+      const delegateTxs = [];
+      for (let i = 0; i < 3; i++) {
+        delegateTxs[i] = addDelegation(prefixToAdd, createIdentity());
+      }
+
+      const delegtions = await Promise.all(delegateTxs);
+      for (let i = 0; i < 3; i++) {
+        expect(delegtions[i]).toBeDefined();
+        expect(delegtions[i].status).toBeTruthy();
+      }
+    });
+
     it("verify delegation on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
@@ -236,6 +279,20 @@ describe("BlockchainManager Delegation", () => {
       const tx = await addDelegation(prefixToAdd, delegateIdentity);
       expect(tx).toBeDefined();
       expect(tx.status).toBeTruthy();
+    });
+
+    it("be able to addDelegate 5 times simultaneously on BFA", async () => {
+      const prefixToAdd = "bfa:";
+      const delegateTxs = [];
+      for (let i = 0; i < 3; i++) {
+        delegateTxs[i] = addDelegation(prefixToAdd, createIdentity());
+      }
+
+      const delegtions = await Promise.all(delegateTxs);
+      for (let i = 0; i < 3; i++) {
+        expect(delegtions[i]).toBeDefined();
+        expect(delegtions[i].status).toBeTruthy();
+      }
     });
 
     it("verify delegation on BFA", async () => {
