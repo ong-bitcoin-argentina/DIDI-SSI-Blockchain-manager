@@ -31,20 +31,19 @@ const config = {
   providerConfig: Constants.BLOCKCHAIN.PROVIDER_CONFIG,
 };
 
-let blockchainManager;
+const blockchainManager = initializeBlockchainManager(config);
+
 const issuerIdentity = {
   did: process.env.DELEGATOR_DID,
   privateKey: process.env.DELEGATOR_PRIV_KEY,
 };
 
-let delegateIdentity;
-let delegateTx;
 
-async function addDelegation(prefixToAdd) {
+async function addDelegation(prefixToAdd, delegateIdentity) {
   const did = delegateIdentity.did;
   const withPrefixDid = addPrefix(prefixToAdd, did);
 
-  delegateTx = await blockchainManager.addDelegate(
+  const delegateTx = await blockchainManager.addDelegate(
     issuerIdentity,
     withPrefixDid,
     1000
@@ -54,13 +53,12 @@ async function addDelegation(prefixToAdd) {
 
 describe("BlockchainManager Delegation", () => {
   describe("On ANY blochchain should", () => {
-    blockchainManager = initializeBlockchainManager(config);
-    delegateIdentity = createIdentity();
+    const delegateIdentity = createIdentity();
 
     it("fail when invalid prefix is received", async () => {
       const prefixToAdd = "invalid:";
       try {
-        await addDelegation(prefixToAdd);
+        await addDelegation(prefixToAdd, delegateIdentity);
       } catch (error) {
         expect(error).toBe("Invalid Provider Prefix");
       }
@@ -68,12 +66,11 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On MAINNET should", () => {
-    blockchainManager = initializeBlockchainManager(config);
-    delegateIdentity = createIdentity();
+    const delegateIdentity = createIdentity();
 
     it("be able to addDelegate on MAINNET", async () => {
       const prefixToAdd = "";
-      await addDelegation(prefixToAdd);
+      const delegateTx = await addDelegation(prefixToAdd, delegateIdentity);
 
       expect(delegateTx).toBeDefined();
       expect(delegateTx.status).toBeTruthy();
@@ -121,19 +118,16 @@ describe("BlockchainManager Delegation", () => {
       );
       expect(validatedDelegate).toBeFalsy();
     });
-
-    
   });
 
   describe("On RSK should", () => {
-    blockchainManager = initializeBlockchainManager(config);
-    delegateIdentity = createIdentity();
+    const delegateIdentity = createIdentity();
 
     it("be able to addDelegate on RSK", async () => {
       const prefixToAdd = "rsk:";
-      const tx = await addDelegation(prefixToAdd);
-      expect(delegateTx).toBeDefined();
-      expect(delegateTx.status).toBeTruthy();
+      const tx = await addDelegation(prefixToAdd, delegateIdentity);
+      expect(tx).toBeDefined();
+      expect(tx.status).toBeTruthy();
     });
 
     it("verify delegation on RSK", async () => {
@@ -181,14 +175,13 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On LACCHAIN should", () => {
-    blockchainManager = initializeBlockchainManager(config);
-    delegateIdentity = createIdentity();
+    const delegateIdentity = createIdentity();
 
     it("be able to addDelegate on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
-      const tx = await addDelegation(prefixToAdd);
-      expect(delegateTx).toBeDefined();
-      expect(delegateTx.status).toBeTruthy();
+      const tx = await addDelegation(prefixToAdd, delegateIdentity);
+      expect(tx).toBeDefined();
+      expect(tx.status).toBeTruthy();
     });
 
     it("verify delegation on LACCHAIN", async () => {
@@ -236,14 +229,13 @@ describe("BlockchainManager Delegation", () => {
   });
 
   describe("On BFA should", () => {
-    blockchainManager = initializeBlockchainManager(config);
-    delegateIdentity = createIdentity();
+    const delegateIdentity = createIdentity();
 
     it("be able to addDelegate on BFA", async () => {
       const prefixToAdd = "bfa:";
-      const tx = await addDelegation(prefixToAdd);
-      expect(delegateTx).toBeDefined();
-      expect(delegateTx.status).toBeTruthy();
+      const tx = await addDelegation(prefixToAdd, delegateIdentity);
+      expect(tx).toBeDefined();
+      expect(tx.status).toBeTruthy();
     });
 
     it("verify delegation on BFA", async () => {
