@@ -33,7 +33,6 @@ describe("isSynced method", () => {
       try {
         await blockchainManager.onlySynced(web3);
       }catch (e) {
-        console.log(e);
         expect(false).toBeTruthy();
       }
     })
