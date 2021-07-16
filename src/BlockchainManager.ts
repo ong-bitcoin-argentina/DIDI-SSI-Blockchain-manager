@@ -36,11 +36,13 @@ const blockChainSelector = (
   let blockchainToConnect = {
     provider: null,
     address: null,
+    name: null,
   };
 
   if (index >= 0) {
     blockchainToConnect.provider = networkConfig[index].rpcUrl;
     blockchainToConnect.address = networkConfig[index].registry;
+    blockchainToConnect.name = networkConfig[index].name;
     return blockchainToConnect;
   } else {
     throw "Invalid Provider Prefix";
@@ -74,6 +76,7 @@ interface Options {
   from: string;
   gasPrice?: number;
   gas?: number;
+  nonce?: number;
 }
 
 interface Identity {
@@ -194,8 +197,20 @@ export class BlockchainManager {
 
     options.gas = await this.getGasLimit(addDelegateMethod, options);
     options.gasPrice = await this.getGasPrice(web3);
-
-    const delegateMethodSent = await addDelegateMethod.send(options);
+    options.nonce = blockchainToConnect.name !== 'lacchain' ? await web3.eth.getTransactionCount(identityAddr, 'pending'): undefined;
+    
+    let delegateMethodSent;
+    try {
+      delegateMethodSent = await addDelegateMethod.send(options);
+    } catch (e) {
+      // We dont want to bump txs. This only happn if simultaneous tx are sent, 
+      // this resend recursively the tx increasing nonce by one
+      if (!e.message.includes('gas price not enough to bump transaction')
+      && !e.message.includes('transaction underpriced')) {
+        throw e;   
+      } 
+      delegateMethodSent = await this.addDelegate(identity, delegateDID, validity)
+    }
     web3.eth.accounts.wallet.remove(account.address);
     return delegateMethodSent;
   }
@@ -420,8 +435,19 @@ export class BlockchainManager {
     );
     options.gas = await this.getGasLimit(revokeDelegateMethod, options);
     options.gasPrice = await this.getGasPrice(web3);
-
-    const revokeMethodSent = await revokeDelegateMethod.send(options);
+    options.nonce = blockchainToConnect.name !== 'lacchain' ? await web3.eth.getTransactionCount(sourceAddress, 'pending'): undefined;
+    let revokeMethodSent;
+    try {
+      revokeMethodSent = await revokeDelegateMethod.send(options);
+    } catch (e) {
+      // We dont want to bump txs. This only happn if simultaneous tx are sent, 
+      // this resend recursively the tx increasing nonce by one
+      if (!e.message.includes('gas price not enough to bump transaction')
+      && !e.message.includes('transaction underpriced')) { 
+        throw e;
+      }
+      revokeMethodSent = await this.revokeDelegate(issuerCredentials, delegatedDID)
+    }
     web3.eth.accounts.wallet.remove(account.address);
     return revokeMethodSent;
   }
