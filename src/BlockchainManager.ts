@@ -206,7 +206,9 @@ export class BlockchainManager {
       // We dont want to bump txs. This only happn if simultaneous tx are sent, 
       // this resend recursively the tx increasing nonce by one
       if (!e.message.includes('gas price not enough to bump transaction')
-      && !e.message.includes('transaction underpriced')) {
+      && !e.message.includes('transaction underpriced')
+      && !e.message.includes('too low') 
+      && !e.message.includes('too high')) {
         throw e;   
       } 
       delegateMethodSent = await this.addDelegate(identity, delegateDID, validity)
@@ -443,7 +445,9 @@ export class BlockchainManager {
       // We dont want to bump txs. This only happn if simultaneous tx are sent, 
       // this resend recursively the tx increasing nonce by one
       if (!e.message.includes('gas price not enough to bump transaction')
-      && !e.message.includes('transaction underpriced')) { 
+      && !e.message.includes('transaction underpriced')
+      && !e.message.includes('too low') 
+      && !e.message.includes('too high')) { 
         throw e;
       }
       revokeMethodSent = await this.revokeDelegate(issuerCredentials, delegatedDID)

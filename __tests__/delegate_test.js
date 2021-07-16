@@ -76,7 +76,7 @@ describe("BlockchainManager Delegation", () => {
       expect(delegateTx.status).toBeTruthy();
     });
 
-    it("be able to addDelegate 5 times simultaneously on MAINNET", async () => {
+    it("be able to addDelegate 3 times simultaneously on MAINNET", async () => {
       const prefixToAdd = "";
       const delegateTxs = [];
       for (let i = 0; i < 3; i++) {
@@ -145,7 +145,7 @@ describe("BlockchainManager Delegation", () => {
       expect(tx.status).toBeTruthy();
     });
 
-    it("be able to addDelegate 5 times simultaneously on RSK", async () => {
+    it("be able to addDelegate 3 times simultaneously on RSK", async () => {
       const prefixToAdd = "rsk:";
       const delegateTxs = [];
       for (let i = 0; i < 3; i++) {
@@ -213,7 +213,7 @@ describe("BlockchainManager Delegation", () => {
       expect(tx.status).toBeTruthy();
     });
 
-    it("be able to addDelegate 5 times simultaneously on LACCHAIN", async () => {
+    it("be able to addDelegate 3 times simultaneously on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const delegateTxs = [];
       for (let i = 0; i < 3; i++) {
@@ -281,7 +281,7 @@ describe("BlockchainManager Delegation", () => {
       expect(tx.status).toBeTruthy();
     });
 
-    it("be able to addDelegate 5 times simultaneously on BFA", async () => {
+    it("be able to addDelegate 3 times simultaneously on BFA", async () => {
       const prefixToAdd = "bfa:";
       const delegateTxs = [];
       for (let i = 0; i < 3; i++) {
