@@ -203,14 +203,9 @@ export class BlockchainManager {
     try {
       delegateMethodSent = await addDelegateMethod.send(options);
     } catch (e) {
-      // We dont want to bump txs. This only happn if simultaneous tx are sent, 
-      // this resend recursively the tx increasing nonce by one
-      if (!e.message.includes('gas price not enough to bump transaction')
-      && !e.message.includes('transaction underpriced')
-      && !e.message.includes('too low') 
-      && !e.message.includes('too high')) {
-        throw e;   
-      } 
+      if (this.isUnknownError(e)) { 
+        throw e;
+      }
       delegateMethodSent = await this.addDelegate(identity, delegateDID, validity)
     }
     web3.eth.accounts.wallet.remove(account.address);
@@ -442,17 +437,24 @@ export class BlockchainManager {
     try {
       revokeMethodSent = await revokeDelegateMethod.send(options);
     } catch (e) {
-      // We dont want to bump txs. This only happn if simultaneous tx are sent, 
-      // this resend recursively the tx increasing nonce by one
-      if (!e.message.includes('gas price not enough to bump transaction')
-      && !e.message.includes('transaction underpriced')
-      && !e.message.includes('too low') 
-      && !e.message.includes('too high')) { 
+      if (this.isUnknownError(e)) { 
         throw e;
       }
       revokeMethodSent = await this.revokeDelegate(issuerCredentials, delegatedDID)
     }
     web3.eth.accounts.wallet.remove(account.address);
     return revokeMethodSent;
+  }
+
+  /**
+   * We dont want to bump txs. This only happn if simultaneous tx are sent, this resend recursively 
+   * the tx increasing nonce by one
+   * @param error
+   */
+  isUnknownError(error) {
+    return !(error.message.includes('gas price not enough to bump transaction')
+    || error.message.includes('transaction underpriced')
+    || error.message.includes('too low') 
+    || error.message.includes('too high'))
   }
 }
