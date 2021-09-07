@@ -147,7 +147,7 @@ export class BlockchainManager {
   static getDidBlockchain(did: string) {
     const didAsArray = did.split(":");
 
-    return didAsArray.length === 4 ? didAsArray[3] : null;
+    return didAsArray.length === 4 ? didAsArray[2] : null;
   }
 
   /**

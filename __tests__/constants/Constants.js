@@ -71,6 +71,13 @@ const CREDENTIALS = {
   context: "https://www.w3.org/2018/credentials/v1"
 };
 
+const DIDS = {
+  didWithNwtwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  didWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  did:"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  network:"lacchain"
+}
+
 module.exports = {
   BLOCKCHAIN: {
     DELEGATE_DURATION: DELEGATE_DURATION,
@@ -78,5 +85,6 @@ module.exports = {
     PROVIDER_CONFIG: PROVIDER_CONFIG,
     GAS_INCREMENT: GAS_INCREMENT
   },
-  CREDENTIALS: CREDENTIALS
+  CREDENTIALS: CREDENTIALS,
+  DIDS: DIDS
 };

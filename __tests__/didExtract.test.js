@@ -1,5 +1,7 @@
-
+import { BlockchainManager } from "../src/BlockchainManager";
+import { DIDS } from "./constants/Constants";
 const Constants = require("./constants/Constants");
+
 
 describe("BlockchainManager did getters", () => {
   describe("getDidContract", () => {
@@ -14,20 +16,26 @@ describe("BlockchainManager did getters", () => {
   });
 
   describe("getDidAddress", () => {
-    test.todo("Get address from did with network", () => {
-
+    test("Get address from did with network", async() => {
+      const resul = await BlockchainManager.getDidAddress(DIDS.didWithNwtwork);
+      expect(resul).toBe("0xdca7ef03e98e0dc2b855be647c39abe984fcf21b");
     });
-    test.todo("Get address from did without network", () => {
-
+  
+    test("Get address from did without network", async() => {
+      const resul = await BlockchainManager.getDidAddress(DIDS.didWithoutNetwork);
+      expect(resul).toBe(DIDS.did);
     });
   });
   
   describe("getDidBlockchain", () => {
-    test.todo("Get blockchain name from did with network", () => {
-
+    test("Get blockchain name from did with network", async() => {
+      const resul = await BlockchainManager.getDidBlockchain(DIDS.didWithNwtwork);
+      expect(resul).toBe(DIDS.network);
     });
-    test.todo("Get blockchain name from did without network", () => {
-
-    });
+  
+    test("Get blockchain name from did without network", async() => {
+      const resul = await BlockchainManager.getDidBlockchain(DIDS.didWithoutNetwork);
+      expect(resul).toBe(null);
+   });
   });
 });
