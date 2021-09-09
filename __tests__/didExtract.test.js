@@ -18,7 +18,7 @@ describe("BlockchainManager did getters", () => {
   describe("getDidAddress", () => {
     test("Get address from did with network", async() => {
       const resul = await BlockchainManager.getDidAddress(DIDS.didWithNwtwork);
-      expect(resul).toBe("0xdca7ef03e98e0dc2b855be647c39abe984fcf21b");
+      expect(resul).toBe(DIDS.did);
     });
   
     test("Get address from did without network", async() => {
