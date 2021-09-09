@@ -7,17 +7,12 @@ const ATTRIBUTE_VALIDITY =
 
 // ======================================================================================================
 
-const BLOCKCHAIN_URL_MAIN = process.env.BLOCKCHAIN_URL_MAIN; // ETH Rinkeby
-const BLOCKCHAIN_URL_RSK = process.env.BLOCKCHAIN_URL_RSK; // RSK
-const BLOCKCHAIN_URL_LAC = process.env.BLOCKCHAIN_URL_LAC; // Lacchain
-const BLOCKCHAIN_URL_BFA = process.env.BLOCKCHAIN_URL_BFA; // BFA testnet
+const { BLOCKCHAIN_URL_RSK, BLOCKCHAIN_URL_LAC, BLOCKCHAIN_URL_BFA } = process.env;
 
 // uPort SC ON
-const BLOCKCHAIN_CONTRACT_MAIN = process.env.BLOCKCHAIN_CONTRACT_MAIN; // MAINNET
-const BLOCKCHAIN_CONTRACT_RSK = process.env.BLOCKCHAIN_CONTRACT_RSK; // RSK and Eth
-const BLOCKCHAIN_CONTRACT_LAC = process.env.BLOCKCHAIN_CONTRACT_LAC; // Lacchain
-const BLOCKCHAIN_CONTRACT_BFA = process.env.BLOCKCHAIN_CONTRACT_BFA; // BFA
+const { BLOCKCHAIN_CONTRACT_MAIN, BLOCKCHAIN_CONTRACT_LAC, BLOCKCHAIN_CONTRACT_BFA } = process.env;
 
+const { INFURA_KEY } = process.env;
 // Provider
 // MAINNET SHOULD BE THE FIRST NETWORK
 // DID ROUTE EXAMPLE PREFIX:
@@ -28,7 +23,27 @@ const PROVIDER_CONFIG = {
   networks: [
     {
       name: "mainnet",
-      rpcUrl: BLOCKCHAIN_URL_MAIN,
+      rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
+    },
+    {
+      name: "ropsten",
+      rpcUrl: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
+    },
+    {
+      name: "rinkeby",
+      rpcUrl: `https://rinkeby.infura.io/v3/${INFURA_KEY}`,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
+    },
+    {
+      name: "goerli",
+      rpcUrl: `https://goerli.infura.io/v3/${INFURA_KEY}`,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
+    },
+    {
+      name: "kovan",
+      rpcUrl: `https://kovan.infura.io/v3/${INFURA_KEY}`,
       registry: BLOCKCHAIN_CONTRACT_MAIN,
     },
     {
@@ -44,7 +59,7 @@ const PROVIDER_CONFIG = {
     {
       name: "rsk",
       rpcUrl: BLOCKCHAIN_URL_RSK,
-      registry: BLOCKCHAIN_CONTRACT_RSK,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
     },
   ],
 };
@@ -56,6 +71,13 @@ const CREDENTIALS = {
   context: "https://www.w3.org/2018/credentials/v1"
 };
 
+const DIDS = {
+  didWithNwtwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  didWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  did:"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  network:"lacchain"
+}
+
 module.exports = {
   BLOCKCHAIN: {
     DELEGATE_DURATION: DELEGATE_DURATION,
@@ -63,5 +85,6 @@ module.exports = {
     PROVIDER_CONFIG: PROVIDER_CONFIG,
     GAS_INCREMENT: GAS_INCREMENT
   },
-  CREDENTIALS: CREDENTIALS
+  CREDENTIALS: CREDENTIALS,
+  DIDS: DIDS
 };

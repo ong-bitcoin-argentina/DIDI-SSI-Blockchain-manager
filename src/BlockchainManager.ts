@@ -139,6 +139,16 @@ export class BlockchainManager {
     const cleanDid = did.split(":");
     return cleanDid[cleanDid.length - 1];
   }
+  
+  /**
+   * 
+   * @param {string } did Did to extract the blockchain name from
+   */
+  static getDidBlockchain(did: string) {
+    const didAsArray = did.split(":");
+
+    return didAsArray.length === 4 ? didAsArray[2] : null;
+  }
 
   /**
    * If syncing throws #blockchainManager-nodeIsSyncing  
@@ -447,7 +457,7 @@ export class BlockchainManager {
   }
 
   /**
-   * We dont want to bump txs. This only happn if simultaneous tx are sent, this resend recursively 
+   * We dont want to bump txs. This only happen if simultaneous tx are sent, this resend recursively 
    * the tx increasing nonce by one
    * @param error
    */
