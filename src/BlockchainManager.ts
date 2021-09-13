@@ -132,7 +132,7 @@ export class BlockchainManager {
 
   /**
    * Returns the address of the DID
-   * @param {string}  did  Did to extract the address from
+   * @param {string}  did  Did to get the address from
    * @returns {string}
    */
   static getDidAddress(did: string) {
@@ -142,13 +142,27 @@ export class BlockchainManager {
   
   /**
    * 
-   * @param {string } did Did to extract the blockchain name from
+   * @param {string } did Did to get the blockchain name from
    */
   static getDidBlockchain(did: string) {
     const didAsArray = did.split(":");
 
     return didAsArray.length === 4 ? didAsArray[2] : null;
   }
+
+  /**
+   * Add a blockchain beofre the ethereum address. Throws if already contains
+   * a blockchain. did:ethr:0x123 => did:ethr:rinkeby:0x123
+   * @param did Did to add the blockchain
+   * @param blockchain Blockchain to add
+   */
+  static addBlockchainToDid(did: string, blockchain: string) {
+    const didAsArray = did.split(":");
+    if ( didAsArray.length === 4) throw new Error('#blockchainManager-didWithNetwork');
+
+    didAsArray.splice(2, 0, blockchain)
+    return didAsArray.join(':');
+  } 
 
   /**
    * If syncing throws #blockchainManager-nodeIsSyncing  
