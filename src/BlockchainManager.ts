@@ -236,25 +236,13 @@ export class BlockchainManager {
     return delegateMethodSent;
   }
 
-  /**
-   * validate if delegateDID is delegate of identity
-   * @param {Identity}  identity
-   * @param {string}  delegateDID
-   */
-  async validateDelegate(identity: string, delegateDID: string) {
-    const identityAddr = BlockchainManager.getDidAddress(identity);
-    const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
-
-    const blockchainToConnect = blockChainSelector(
-      this.config.providerConfig.networks,
-      delegateDID
-    );
+  private async validateOnBlockchains(blockchainToConnect: any, identityAddr: string, delegateAddr: string) {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
     const web3 = new Web3(provider);
 
-    await this.onlySynced(web3);
+    this.onlySynced(web3);
     const options: Options = {
       from: identityAddr,
     };
@@ -268,8 +256,40 @@ export class BlockchainManager {
       BlockchainManager.delegateType,
       delegateAddr
     );
-
     return validDelegateMethod.call(options);
+  }
+
+  /**
+   * validate if delegateDID is delegate of identity
+   * @param {Identity}  identity
+   * @param {string}  delegateDID
+   */
+  async validateDelegate(identity: string, delegateDID: string) {
+    const identityAddr = BlockchainManager.getDidAddress(identity);
+    const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
+    const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
+
+    if (!blockchain) {
+      const validations = this.config.providerConfig.networks.map(network => {
+        const blockchainToConnect = {
+          provider: network.rpcUrl,
+          address: network.registry,
+          name: network.name,
+        }
+        return this.validateOnBlockchains(
+          blockchainToConnect, 
+          identityAddr, 
+          delegateAddr
+        )
+      });
+      return Promise.any(validations);
+    };
+
+    const blockchainToConnect = blockChainSelector(
+      this.config.providerConfig.networks,
+      delegateDID
+    );
+    return this.validateOnBlockchains(blockchainToConnect, identityAddr, delegateAddr)
   }
 
   /**
