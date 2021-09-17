@@ -20,37 +20,37 @@ describe("BlockchainManager did getters", () => {
     test("Get BFA ethr-did-registry address", async() => {
       const web3 = new Web3(new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[6].rpcUrl));
       const resul = await BlockchainManager.getDidContract(options,Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[6].registry,web3);
-      expect(resul._address).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[6].registry);
+      expect(resul._address.toLowerCase()).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[6].registry);
     });
 
     test("Get mainnet ethr-did-registry address", async() => {
       const web3 = new Web3(new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].rpcUrl));
       const resul = await BlockchainManager.getDidContract(options,Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].registry,web3);
-      expect(resul._address).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].registry);
+      expect(resul._address.toLowerCase()).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].registry);
     });
 
     test("Get ropsten ethr-did-registry address", async() => {
       const web3 = new Web3(new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[1].rpcUrl));
       const resul = await BlockchainManager.getDidContract(options,Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[1].registry,web3);
-      expect(resul._address).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[1].registry);
+      expect(resul._address.toLowerCase()).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[1].registry);
     });
 
     test("Get rinkeby ethr-did-registry address", async() => {
       const web3 = new Web3(new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[2].rpcUrl));
       const resul = await BlockchainManager.getDidContract(options,Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[2].registry,web3);
-      expect(resul._address).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[2].registry);
+      expect(resul._address.toLowerCase()).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[2].registry);
     });
 
     test("Get goerli ethr-did-registry address", async() => {
       const web3 = new Web3(new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[3].rpcUrl));
       const resul = await BlockchainManager.getDidContract(options,Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[3].registry,web3);
-      expect(resul._address).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[3].registry);
+      expect(resul._address.toLowerCase()).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[3].registry);
     });
 
     test("Get kovan ethr-did-registry address", async() => {
       const web3 = new Web3(new Web3.providers.HttpProvider(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[4].rpcUrl));
       const resul = await BlockchainManager.getDidContract(options,Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[4].registry,web3);
-      expect(resul._address).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[4].registry);
+      expect(resul._address.toLowerCase()).toBe(Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[4].registry);
     });
     
   });
