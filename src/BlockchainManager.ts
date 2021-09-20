@@ -33,7 +33,7 @@ const blockChainSelector = (
     }
   }
 
-  let blockchainToConnect = {
+  let blockchainToConnect: NetworkConfig = {
     provider: null,
     address: null,
     name: null,
@@ -83,6 +83,13 @@ interface Identity {
   did: string;
   privateKey: string;
 }
+
+interface NetworkConfig {
+  provider: string,
+  address: string,
+  name: string,
+}
+
 export class BlockchainManager {
   config: BlockchainManagerConfig;
   didResolver: Resolver;
@@ -188,7 +195,7 @@ export class BlockchainManager {
    * @param {string}  validity
    */
   async addDelegate(identity: Identity, delegateDID: string, validity: string) {
-    const blockchainToConnect = blockChainSelector(
+    const blockchainToConnect: NetworkConfig = blockChainSelector(
       this.config.providerConfig.networks,
       delegateDID
     );
@@ -235,20 +242,13 @@ export class BlockchainManager {
     web3.eth.accounts.wallet.remove(account.address);
     return delegateMethodSent;
   }
-
   /**
-   * validate if delegateDID is delegate of identity
-   * @param {Identity}  identity
-   * @param {string}  delegateDID
+   * Given a blockchain and an issuer, validate the delegate
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {String} identityAddr 
+   * @param {String} delegateAddr 
    */
-  async validateDelegate(identity: string, delegateDID: string) {
-    const identityAddr = BlockchainManager.getDidAddress(identity);
-    const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
-
-    const blockchainToConnect = blockChainSelector(
-      this.config.providerConfig.networks,
-      delegateDID
-    );
+  private async validateOnBlockchains(blockchainToConnect: any, identityAddr: string, delegateAddr: string) {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
@@ -268,8 +268,40 @@ export class BlockchainManager {
       BlockchainManager.delegateType,
       delegateAddr
     );
-
     return validDelegateMethod.call(options);
+  }
+
+  /**
+   * validate if delegateDID is delegate of identity
+   * @param {Identity}  identity
+   * @param {string}  delegateDID
+   */
+  async validateDelegate(identity: string, delegateDID: string) {
+    const identityAddr = BlockchainManager.getDidAddress(identity);
+    const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
+    const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
+
+    if (blockchain) {
+      const blockchainToConnect: NetworkConfig = blockChainSelector(
+        this.config.providerConfig.networks,
+        delegateDID
+      );
+      return this.validateOnBlockchains(blockchainToConnect, identityAddr, delegateAddr);
+    };
+
+    const validations = this.config.providerConfig.networks.map(network => {
+      const blockchainToConnect: NetworkConfig = {
+        provider: network.rpcUrl,
+        address: network.registry,
+        name: network.name,
+      };
+      return this.validateOnBlockchains(
+        blockchainToConnect, 
+        identityAddr, 
+        delegateAddr
+      );
+    });
+    return Promise.any(validations);
   }
 
   /**
