@@ -166,7 +166,6 @@ describe("BlockchainManager Delegation", () => {
         issuerIdentity.did,
         prefixAddedDid
       );
-      console.log(validatedDelegate)
       expect(validatedDelegate).toBeTruthy();
     });
 
@@ -187,7 +186,16 @@ describe("BlockchainManager Delegation", () => {
         issuerIdentity,
         prefixAddedDid
       );
+      expect(revokeDelegate).toBeTruthy();
+    });
 
+    it("Revoke delegation on RSK without prefix", async () => {
+      const prefixToAdd = "";
+      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+      const revokeDelegate = await blockchainManager.revokeDelegate(
+        issuerIdentity,
+        prefixAddedDid
+      );
       expect(revokeDelegate).toBeTruthy();
     });
 
@@ -285,7 +293,16 @@ describe("BlockchainManager Delegation", () => {
         issuerIdentity,
         prefixAddedDid
       );
+      expect(revokeDelegate).toBeTruthy();
+    });
 
+    it("Revoke delegation on LACCHAIN without prefix", async () => {
+      const prefixToAdd = "";
+      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+      const revokeDelegate = await blockchainManager.revokeDelegate(
+        issuerIdentity,
+        prefixAddedDid
+      );
       expect(revokeDelegate).toBeTruthy();
     });
 
@@ -307,7 +324,6 @@ describe("BlockchainManager Delegation", () => {
         issuerIdentity.did,
         prefixAddedDid
       );
-
       expect(validatedDelegate).toBeFalsy();
     });
 
@@ -380,6 +396,17 @@ describe("BlockchainManager Delegation", () => {
 
     it("Revoke delegation on BFA", async () => {
       const prefixToAdd = "bfa:";
+      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+      const revokeDelegate = await blockchainManager.revokeDelegate(
+        issuerIdentity,
+        prefixAddedDid
+      );
+
+      expect(revokeDelegate).toBeTruthy();
+    });
+
+    it("Revoke delegation on BFA without prefix", async () => {
+      const prefixToAdd = "";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       const revokeDelegate = await blockchainManager.revokeDelegate(
         issuerIdentity,
