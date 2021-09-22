@@ -24,9 +24,10 @@
     "dotenv": "^8.2.0",
     "eslint": "^7.13.0",
     "jest": "^26.4.2",
-    "typescript": "^4.0.5"
+    "typescript": "^4.4.3"
   },
   "scripts": {
+    "test2": "jest --runInBand",
     "test": "jest && coveralls < coverage/lcov.info",
     "build": "tsc",
     "typeCheck": "tsc --noEmit",
