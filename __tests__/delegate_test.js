@@ -135,7 +135,7 @@ describe("BlockchainManager Delegation", () => {
     });
   });
 
-  describe.only("On RSK should", () => {
+  describe("On RSK should", () => {
     const delegateIdentity = createIdentity();
 
     it("be able to addDelegate on RSK", async () => {
@@ -169,7 +169,7 @@ describe("BlockchainManager Delegation", () => {
       expect(validatedDelegate).toBeTruthy();
     });
 
-    it.skip("verify delegation on RSK", async () => {
+    it.skip("verify delegation on RSK witout", async () => {
       const prefixToAdd = "";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
@@ -189,7 +189,7 @@ describe("BlockchainManager Delegation", () => {
       expect(revokeDelegate).toBeTruthy();
     });
 
-    it.skip("Revoke delegation on RSK without prefix", async () => {
+    it("Revoke delegation on RSK without prefix", async () => {
       const prefixToAdd = "";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       const revokeDelegate = await blockchainManager.revokeDelegate(
