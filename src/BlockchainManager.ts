@@ -453,9 +453,7 @@ export class BlockchainManager {
    * @param {Identity} issuerCredentials 
    */
   private async revokeOnBlockchain(blockchainToConnect: NetworkConfig, delegatedDID: string, issuerCredentials: Identity) {
-    const sourceAddress = BlockchainManager.getDidAddress(
-      issuerCredentials.did
-    );
+    const sourceAddress = BlockchainManager.getDidAddress(issuerCredentials.did);
     const targetAddress = BlockchainManager.getDidAddress(delegatedDID);
 
     const provider = new Web3.providers.HttpProvider(
@@ -463,9 +461,7 @@ export class BlockchainManager {
     );
     const web3 = new Web3(provider);
 
-    const options: Options = {
-      from: sourceAddress,
-    };
+    const options: Options = { from: sourceAddress };
 
     const contract = BlockchainManager.getDidContract(
       options,
@@ -527,7 +523,7 @@ export class BlockchainManager {
         issuerCredentials
       );
     });
-    return Promise.any(revoke);
+    return Promise.allSettled(revoke);
   }
 
   /**
