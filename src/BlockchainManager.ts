@@ -189,17 +189,13 @@ export class BlockchainManager {
   }
 
   /**
-   * Add delegateDID as a delegate of identity
-   * @param {Identity}  identity
-   * @param {string}  delegateDID
-   * @param {string}  validity
+   * Given a network add delegateDID as a delegate of identity
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {Identity} identity 
+   * @param {string} delegateDID 
+   * @param {string} validity 
    */
-  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
-    const blockchainToConnect: NetworkConfig = blockChainSelector(
-      this.config.providerConfig.networks,
-      delegateDID
-    );
-
+  private async delegateOnBlockchain(blockchainToConnect: NetworkConfig, identity: Identity, delegateDID: string, validity: string) {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
@@ -237,10 +233,43 @@ export class BlockchainManager {
       if (this.isUnknownError(e)) { 
         throw e;
       }
-      delegateMethodSent = await this.addDelegate(identity, delegateDID, validity)
+      delegateMethodSent = await this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity)
     }
     web3.eth.accounts.wallet.remove(account.address);
     return delegateMethodSent;
+  }
+
+  /**
+   * Add delegateDID as a delegate of identity on one or more networks
+   * @param {Identity}  identity
+   * @param {string}  delegateDID
+   * @param {string}  validity
+   */
+  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
+    const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
+
+    if (blockchain) {
+      const blockchainToConnect: NetworkConfig = blockChainSelector(
+        this.config.providerConfig.networks,
+        delegateDID
+      );
+      return this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity);
+    }
+
+    const delegations = this.config.providerConfig.networks.map(network => {
+      const blockchainToConnect: NetworkConfig = {
+        provider: network.rpcUrl,
+        address: network.registry,
+        name: network.name,
+      };
+      return this.delegateOnBlockchain(
+        blockchainToConnect, 
+        identity, 
+        delegateDID,
+        validity,
+      );
+    });
+    return Promise.allSettled(delegations);
   }
 
   /**
