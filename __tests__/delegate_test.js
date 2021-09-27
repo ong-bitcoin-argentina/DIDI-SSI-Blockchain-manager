@@ -65,15 +65,16 @@ describe("BlockchainManager Delegation", () => {
     });
   });
 
-  xdescribe("On MAINNET should", () => {
+  describe.only("On MAINNET should", () => {
     const delegateIdentity = createIdentity();
 
     it("be able to addDelegate on MAINNET", async () => {
       const prefixToAdd = "";
-      const delegateTx = await addDelegation(prefixToAdd, delegateIdentity);
-
-      expect(delegateTx).toBeDefined();
-      expect(delegateTx.status).toBeTruthy();
+      const delegateTxs = await addDelegation(prefixToAdd, delegateIdentity);
+      delegateTxs.map(tx => {
+        expect(tx).toBeDefined();
+        expect(tx.status).toBeTruthy();
+      });
     });
 
     it("be able to addDelegate 3 times simultaneously on MAINNET", async () => {
@@ -82,13 +83,15 @@ describe("BlockchainManager Delegation", () => {
       for (let i = 0; i < 3; i++) {
         delegateTxs[i] = addDelegation(prefixToAdd, createIdentity());
       }
-
-      const delegtions = await Promise.all(delegateTxs);
-      for (let i = 0; i < 3; i++) {
-        expect(delegtions[i]).toBeDefined();
-        expect(delegtions[i].status).toBeTruthy();
-      }
-
+      const delegations = await Promise.all(delegateTxs);
+      console.log(delegations)
+      delegations.map(tx => {
+        for (let i = 0; i < 3; i++) {
+          console.log(tx[i])
+          expect(tx[i]).toBeDefined();
+          expect(tx[i].status).toBeTruthy();
+        }
+      })
     });
 
     it("verify delegation on MAINNET", async () => {
@@ -108,10 +111,11 @@ describe("BlockchainManager Delegation", () => {
         issuerIdentity,
         prefixAddedDid
       );
-
-      expect(revokeDelegate).toBeTruthy();
+      revokeDelegate.map(i => i.value && i.value.events && 
+        expect(parseInt(i.value.events.DIDDelegateChanged.returnValues.validTo - Date.now() / 1000))
+        .toBeLessThan(500)
+      );
     });
-
     it("Fail verification due to revoked delegation on MAINNET", async () => {
       const prefixToAdd = "";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
