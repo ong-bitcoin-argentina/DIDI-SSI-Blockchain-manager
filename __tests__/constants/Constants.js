@@ -77,7 +77,7 @@ const CREDENTIALS = {
 };
 
 const DIDS = {
-  didWithNwtwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  didWithNetwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   didWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   did:"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   network:"lacchain"
