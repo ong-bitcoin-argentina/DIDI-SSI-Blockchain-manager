@@ -242,6 +242,7 @@ export class BlockchainManager {
     web3.eth.accounts.wallet.remove(account.address);
     return delegateMethodSent;
   }
+
   /**
    * Given a blockchain and an issuer, validate the delegate
    * @param {NetworkConfig} blockchainToConnect 
@@ -446,29 +447,21 @@ export class BlockchainManager {
   }
 
   /**
-   * Revoke delegation
-   * @param {Identity}  issuerCredentials
-   * @param {string}  delegatedDID
+   * Given a blockchain revoke a delegate
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {string} delegatedDID 
+   * @param {Identity} issuerCredentials 
    */
-  async revokeDelegate(issuerCredentials, delegatedDID) {
-    const blockchainToConnect = blockChainSelector(
-      this.config.providerConfig.networks,
-      delegatedDID
-    );
+  private async revokeOnBlockchain(blockchainToConnect: NetworkConfig, delegatedDID: string, issuerCredentials: Identity) {
+    const sourceAddress = BlockchainManager.getDidAddress(issuerCredentials.did);
+    const targetAddress = BlockchainManager.getDidAddress(delegatedDID);
 
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
     const web3 = new Web3(provider);
 
-    const sourceAddress = BlockchainManager.getDidAddress(
-      issuerCredentials.did
-    );
-    const targetAddress = BlockchainManager.getDidAddress(delegatedDID);
-
-    const options: Options = {
-      from: sourceAddress,
-    };
+    const options: Options = { from: sourceAddress };
 
     const contract = BlockchainManager.getDidContract(
       options,
@@ -499,7 +492,38 @@ export class BlockchainManager {
       revokeMethodSent = await this.revokeDelegate(issuerCredentials, delegatedDID)
     }
     web3.eth.accounts.wallet.remove(account.address);
-    return revokeMethodSent;
+    return revokeMethodSent;    
+  }
+
+  /**
+   * Revoke delegation
+   * @param {Identity}  issuerCredentials
+   * @param {string}  delegatedDID
+   */
+  async revokeDelegate(issuerCredentials, delegatedDID) {
+    const blockchain = BlockchainManager.getDidBlockchain(delegatedDID);
+
+    if (blockchain) {
+      const blockchainToConnect = blockChainSelector(
+        this.config.providerConfig.networks,
+        delegatedDID
+      );
+      return this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials);
+    }
+
+    const revoke = this.config.providerConfig.networks.map(network => {
+      const blockchainToConnect: NetworkConfig = {
+        provider: network.rpcUrl,
+        address: network.registry,
+        name: network.name,
+      };
+      return this.revokeOnBlockchain(
+        blockchainToConnect, 
+        delegatedDID, 
+        issuerCredentials
+      );
+    });
+    return Promise.allSettled(revoke);
   }
 
   /**
