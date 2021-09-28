@@ -69,7 +69,7 @@ describe("BlockchainManager Delegation", () => {
       }
     });
 
-    it("verify delegation on all networks", async () => {
+    it.skip("verify delegation on all networks", async () => {
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
         delegateIdentity.did
