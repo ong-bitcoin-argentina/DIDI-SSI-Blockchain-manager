@@ -22,6 +22,11 @@ const { INFURA_KEY } = process.env;
 const PROVIDER_CONFIG = {
   networks: [
     {
+      name: "",
+      rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
+    },
+    {
       name: "mainnet",
       rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
       registry: BLOCKCHAIN_CONTRACT_MAIN,
