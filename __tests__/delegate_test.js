@@ -52,7 +52,7 @@ async function addDelegation(prefixToAdd, delegateIdentity) {
 }
 
 describe("BlockchainManager Delegation", () => {
-  describe.only("On ANY blochchain should", () => {
+  describe("On ANY blochchain should", () => {
     const delegateIdentity = createIdentity();
     it("be able to addDelegate on all networks", async () => {
       const prefixToAdd = "";
