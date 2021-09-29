@@ -54,7 +54,7 @@ async function addDelegation(prefixToAdd, delegateIdentity) {
 describe("BlockchainManager Delegation", () => {
   describe("On ANY blochchain should", () => {
     const delegateIdentity = createIdentity();
-    it("be able to addDelegate on all networks", async () => {
+    it("be able to delegate did without prefix on some network", async () => {
       const prefixToAdd = "";
       const delegateTxs = await addDelegation(prefixToAdd, delegateIdentity);
       expect(delegateTxs.some(tx => tx.status = 'fulfilled' && tx.value )).toBeTruthy();
@@ -69,7 +69,7 @@ describe("BlockchainManager Delegation", () => {
       }
     });
 
-    it.skip("verify delegation on all networks", async () => {
+    it("verify delegation on all networks", async () => {
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
         delegateIdentity.did
