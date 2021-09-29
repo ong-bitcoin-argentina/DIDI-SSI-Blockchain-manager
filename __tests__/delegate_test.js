@@ -52,7 +52,7 @@ async function addDelegation(prefixToAdd, delegateIdentity) {
 }
 
 describe("BlockchainManager Delegation", () => {
-  describe("On ANY blochchain should", () => {
+  describe.only("On ANY blochchain should", () => {
     const delegateIdentity = createIdentity();
     it("be able to addDelegate on all networks", async () => {
       const prefixToAdd = "";
@@ -77,15 +77,15 @@ describe("BlockchainManager Delegation", () => {
       expect(validatedDelegate).toBeTruthy();
     });
 
-    it("Revoke delegation on all networks", async () => {
+    it("Fail to revoke delegation on Mainnet due to insufficients funds", async () => {
       const revokeDelegate = await blockchainManager.revokeDelegate(
         issuerIdentity,
         delegateIdentity.did
       );
-      revokeDelegate.forEach(i => i.value && i.value.events && 
-        expect(parseInt(i.value.events.DIDDelegateChanged.returnValues.validTo - Date.now() / 1000))
-        .toBeLessThan(500)
-      );
+      
+      expect(revokeDelegate.some(tx => 
+        tx.status === 'rejected' && tx.reason.message.includes('insufficient funds for gas * price + value')
+      )).toBeTruthy;
     });
 
     it("Fail verification due to revoked delegation on all networks", async () => {
