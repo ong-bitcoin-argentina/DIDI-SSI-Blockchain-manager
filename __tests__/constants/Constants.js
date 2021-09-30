@@ -22,6 +22,11 @@ const { INFURA_KEY } = process.env;
 const PROVIDER_CONFIG = {
   networks: [
     {
+      name: "",
+      rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
+      registry: BLOCKCHAIN_CONTRACT_MAIN,
+    },
+    {
       name: "mainnet",
       rpcUrl: `https://mainnet.infura.io/v3/${INFURA_KEY}`,
       registry: BLOCKCHAIN_CONTRACT_MAIN,
@@ -72,7 +77,7 @@ const CREDENTIALS = {
 };
 
 const DIDS = {
-  didWithNwtwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  didWithNetwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   didWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   did:"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   network:"lacchain",

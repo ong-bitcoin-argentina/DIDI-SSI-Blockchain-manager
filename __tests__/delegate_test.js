@@ -54,6 +54,14 @@ async function addDelegation(prefixToAdd, delegateIdentity) {
 describe("BlockchainManager Delegation", () => {
   describe("On ANY blochchain should", () => {
     const delegateIdentity = createIdentity();
+    it("be able to delegate did without prefix", async () => {
+      const prefixToAdd = "";
+      const delegateTxs = await addDelegation(prefixToAdd, delegateIdentity);
+      delegateTxs.forEach(({network, status}) => {
+        const expectedStatus = network !== 'mainnet' ? 'fulfilled' : 'rejected';
+        expect(status).toBe(expectedStatus)
+      });
+    });
 
     it("fail when invalid prefix is received", async () => {
       const prefixToAdd = "invalid:";
@@ -63,75 +71,82 @@ describe("BlockchainManager Delegation", () => {
         expect(error).toBe("Invalid Provider Prefix");
       }
     });
-  });
 
-  xdescribe("On MAINNET should", () => {
-    const delegateIdentity = createIdentity();
-
-    it("be able to addDelegate on MAINNET", async () => {
-      const prefixToAdd = "";
-      const delegateTx = await addDelegation(prefixToAdd, delegateIdentity);
-
-      expect(delegateTx).toBeDefined();
-      expect(delegateTx.status).toBeTruthy();
-    });
-
-    it("be able to addDelegate 3 times simultaneously on MAINNET", async () => {
-      const prefixToAdd = "";
-      const delegateTxs = [];
-      for (let i = 0; i < 3; i++) {
-        delegateTxs[i] = addDelegation(prefixToAdd, createIdentity());
-      }
-
-      const delegtions = await Promise.all(delegateTxs);
-      for (let i = 0; i < 3; i++) {
-        expect(delegtions[i]).toBeDefined();
-        expect(delegtions[i].status).toBeTruthy();
-      }
-
-    });
-
-    it("verify delegation on MAINNET", async () => {
-      const prefixToAdd = "";
-      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+    it("verify delegation", async () => {
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
-        prefixAddedDid
+        delegateIdentity.did
       );
       expect(validatedDelegate).toBeTruthy();
     });
 
-    it("Revoke delegation on MAINNET", async () => {
-      const prefixToAdd = "";
-      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
+    it("Fail to revoke delegation on Mainnet due to insufficients funds", async () => {
+      const revokeTxs = await blockchainManager.revokeDelegate(
         issuerIdentity,
-        prefixAddedDid
+        delegateIdentity.did
       );
 
-      expect(revokeDelegate).toBeTruthy();
+      revokeTxs.forEach(({ network, status }) => {
+        const expectedStatus = network !== 'mainnet' ? 'fulfilled' : 'rejected';
+        expect(status).toBe(expectedStatus)
+      });
     });
 
-    it("Fail verification due to revoked delegation on MAINNET", async () => {
-      const prefixToAdd = "";
-      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+    it("Fail verification due to revoked delegation on all networks", async () => {
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
-        prefixAddedDid
+        delegateIdentity.did
       );
-
       expect(validatedDelegate).toBeFalsy();
     });
 
-    it("Fail verification when delegation does not exists on MAINNET", async () => {
+    it("Fail verification when delegation does not exists on all networks", async () => {
       const otherIdentity = createIdentity();
-      const prefixToAdd = "";
-      const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
-        prefixAddedDid
+        otherIdentity.did
       );
       expect(validatedDelegate).toBeFalsy();
+    });
+  });
+
+  describe("On MAINNET should", () => {
+    const delegateIdentity = createIdentity();
+
+    it("Fail delegation due to insufficient funds for gas on MAINNET", async () => {
+      const prefixToAdd = "mainnet:";
+      try {
+        await addDelegation(prefixToAdd, delegateIdentity);
+      } catch (error) {
+        expect(error.message.includes("insufficient funds for gas * price + value")).toBeTruthy();
+      }
+    });
+
+    it("Fail verification on MAINNET", async () => {
+      const prefixToAdd = "mainnet:";
+      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+      try {
+        await blockchainManager.validateDelegate(
+          issuerIdentity.did,
+          prefixAddedDid
+        );
+      } catch (error) {
+        expect(error.message.includes("All promises were rejected")).toBeTruthy();
+      }
+    });
+
+    it("Revoke delegation on MAINNET", async () => {
+      const prefixToAdd = "mainnet:";
+      const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
+
+      try {
+        await blockchainManager.revokeDelegate(
+          issuerIdentity,
+          prefixAddedDid
+        );
+      } catch (error) {
+        expect(error.message.includes("insufficient funds for gas * price + value")).toBeTruthy();
+      }
     });
   });
 
@@ -169,14 +184,6 @@ describe("BlockchainManager Delegation", () => {
       expect(validatedDelegate).toBeTruthy();
     });
 
-    it("verify delegation on RSK without prefix", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        delegateIdentity.did
-      );
-      expect(validatedDelegate).toBeTruthy();
-    });
-
     it("Revoke delegation on RSK", async () => {
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
@@ -188,31 +195,12 @@ describe("BlockchainManager Delegation", () => {
       expect(parseInt(validTo) - Date.now() / 1000).toBeLessThan(500);
     });
 
-    it("Revoke delegation on RSK without prefix", async () => {
-      const revokeDelegate = await blockchainManager.revokeDelegate(
-        issuerIdentity,
-        delegateIdentity.did
-      );
-      revokeDelegate.map(i => i.value && i.value.events && 
-        expect(parseInt(i.value.events.DIDDelegateChanged.returnValues.validTo - Date.now() / 1000))
-        .toBeLessThan(500)
-      );
-    });
-
     it("Fail verification due to revoked delegation on RSK", async () => {
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
         prefixAddedDid
-      );
-      expect(validatedDelegate).toBeFalsy();
-    });
-
-    it("Fail verification due to revoked delegation on RSK without prefix", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        delegateIdentity.did
       );
       expect(validatedDelegate).toBeFalsy();
     });
@@ -226,26 +214,6 @@ describe("BlockchainManager Delegation", () => {
         prefixAddedDid
       );
       expect(validatedDelegate).toBeFalsy();
-    });
-
-    it("Fail verification when delegation does not exists on RSK without prefix", async () => {
-      const otherIdentity = createIdentity();
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        otherIdentity.did
-      );
-      expect(validatedDelegate).toBeFalsy();
-    });
-
-    it.skip("Fail revocation when delegation does not exists on any blockchain", async () => {
-      const otherIdentity = createIdentity();
-      const prefixToAdd = "rsk:";
-      const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
-        issuerIdentity,
-        prefixAddedDid
-      );
-      expect(revokeDelegate.events).toBeUndefined();
     });
   });
 
@@ -283,14 +251,6 @@ describe("BlockchainManager Delegation", () => {
       expect(validatedDelegate).toBeTruthy();
     });
 
-    it("verify delegation on LACCHAIN without prefix", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        delegateIdentity.did
-      );
-      expect(validatedDelegate).toBeTruthy();
-    });
-
     it("Revoke delegation on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
@@ -302,31 +262,12 @@ describe("BlockchainManager Delegation", () => {
       expect(parseInt(validTo) - Date.now() / 1000).toBeLessThan(500);
     });
 
-    it("Revoke delegation on LACCHAIN without prefix", async () => {
-      const revokeDelegate = await blockchainManager.revokeDelegate(
-        issuerIdentity,
-        delegateIdentity.did
-      );
-      revokeDelegate.map(i => i.value && i.value.events && 
-        expect(parseInt(i.value.events.DIDDelegateChanged.returnValues.validTo - Date.now() / 1000))
-        .toBeLessThan(500)
-      );
-    });
-
     it("Fail verification due to revoked delegation on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
         prefixAddedDid
-      );
-      expect(validatedDelegate).toBeFalsy();
-    });
-
-    it("Fail verification due to revoked delegation on LACCHAIN without prefix", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        delegateIdentity.did
       );
       expect(validatedDelegate).toBeFalsy();
     });
@@ -340,26 +281,6 @@ describe("BlockchainManager Delegation", () => {
         prefixAddedDid
       );
       expect(validatedDelegate).toBeFalsy();
-    });
-
-    it("Fail verification when delegation does not exists on LACCHAIN without prefix", async () => {
-      const otherIdentity = createIdentity();
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        otherIdentity.did
-      );
-      expect(validatedDelegate).toBeFalsy();
-    });
-
-    it.skip("Fail revocation when delegation does not exists on any blockchain", async () => {
-      const otherIdentity = createIdentity();
-      const prefixToAdd = "lacchain:";
-      const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
-        issuerIdentity,
-        prefixAddedDid
-      );
-      expect(revokeDelegate.events).toBeUndefined();
     });
   });
 
@@ -397,14 +318,6 @@ describe("BlockchainManager Delegation", () => {
       expect(validatedDelegate).toBeTruthy();
     });
 
-    it("verify delegation on BFA without prefix", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        delegateIdentity.did
-      );
-      expect(validatedDelegate).toBeTruthy();
-    });
-
     it("Revoke delegation on BFA", async () => {
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
@@ -416,32 +329,12 @@ describe("BlockchainManager Delegation", () => {
       expect(parseInt(validTo) - Date.now() / 1000).toBeLessThan(500);
     });
 
-    it("Revoke delegation on BFA without prefix", async () => {
-      const revokeDelegate = await blockchainManager.revokeDelegate(
-        issuerIdentity,
-        delegateIdentity.did
-      );
-      revokeDelegate.map(i => i.value && i.value.events && 
-        expect(parseInt(i.value.events.DIDDelegateChanged.returnValues.validTo - Date.now() / 1000))
-        .toBeLessThan(500)
-      );
-    });
-
     it("Fail verification due to revoked delegation on BFA", async () => {
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       const validatedDelegate = await blockchainManager.validateDelegate(
         issuerIdentity.did,
         prefixAddedDid
-      );
-
-      expect(validatedDelegate).toBeFalsy();
-    });
-
-    it("Fail verification due to revoked delegation on BFA without prefix", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        delegateIdentity.did
       );
 
       expect(validatedDelegate).toBeFalsy();
@@ -456,26 +349,6 @@ describe("BlockchainManager Delegation", () => {
         prefixAddedDid
       );
       expect(validatedDelegate).toBeFalsy();
-    });
-
-    it("Fail verification when delegation does not exists on BFA without prefix", async () => {
-      const otherIdentity = createIdentity();
-      const validatedDelegate = await blockchainManager.validateDelegate(
-        issuerIdentity.did,
-        otherIdentity.did
-      );
-      expect(validatedDelegate).toBeFalsy();
-    });
-
-    it.skip("Fail revocation when delegation does not exists on any blockchain", async () => {
-      const otherIdentity = createIdentity();
-      const prefixToAdd = "bfa:";
-      const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
-        issuerIdentity,
-        prefixAddedDid
-      );
-      expect(revokeDelegate.events).toBeUndefined();
     });
   });
 });

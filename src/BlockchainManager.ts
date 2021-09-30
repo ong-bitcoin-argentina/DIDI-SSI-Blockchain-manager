@@ -204,17 +204,13 @@ export class BlockchainManager {
   }
 
   /**
-   * Add delegateDID as a delegate of identity
-   * @param {Identity}  identity
-   * @param {string}  delegateDID
-   * @param {string}  validity
+   * Given a network add delegateDID as a delegate of identity
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {Identity} identity 
+   * @param {string} delegateDID 
+   * @param {string} validity 
    */
-  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
-    const blockchainToConnect: NetworkConfig = blockChainSelector(
-      this.config.providerConfig.networks,
-      delegateDID
-    );
-
+  private async delegateOnBlockchain(blockchainToConnect: NetworkConfig, identity: Identity, delegateDID: string, validity: string) {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
@@ -252,10 +248,41 @@ export class BlockchainManager {
       if (this.isUnknownError(e)) { 
         throw e;
       }
-      delegateMethodSent = await this.addDelegate(identity, delegateDID, validity)
+      delegateMethodSent = await this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity)
     }
     web3.eth.accounts.wallet.remove(account.address);
     return delegateMethodSent;
+  }
+
+  /**
+   * Add delegateDID as a delegate of identity on one or more networks
+   * @param {Identity}  identity
+   * @param {string}  delegateDID
+   * @param {string}  validity
+   */
+  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
+    const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
+
+    if (blockchain) {
+      const blockchainToConnect: NetworkConfig = blockChainSelector(
+        this.config.providerConfig.networks,
+        delegateDID
+      );
+      return this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity);
+    }
+
+    const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
+    const delegations = validNetworks
+      .map(({ rpcUrl, registry, name })=> ({ provider: rpcUrl, address: registry, name }))
+      .map((network: NetworkConfig) => this.delegateOnBlockchain(network, identity, delegateDID, validity));
+
+    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value 
+    const settledDelegations: any = await Promise.allSettled(delegations);
+
+    return settledDelegations.map((result, index) => ({
+      network: validNetworks[index].name,
+      ...result,
+    }));
   }
 
   /**
@@ -317,7 +344,10 @@ export class BlockchainManager {
         delegateAddr
       );
     });
-    return Promise.any(validations);
+    let responses: any;
+    await Promise.allSettled(validations)
+      .then((results) => responses = results);
+    return responses.some(result => result.value === true);
   }
 
   /**
@@ -526,19 +556,18 @@ export class BlockchainManager {
       return this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials);
     }
 
-    const revoke = this.config.providerConfig.networks.map(network => {
-      const blockchainToConnect: NetworkConfig = {
-        provider: network.rpcUrl,
-        address: network.registry,
-        name: network.name,
-      };
-      return this.revokeOnBlockchain(
-        blockchainToConnect, 
-        delegatedDID, 
-        issuerCredentials
-      );
-    });
-    return Promise.allSettled(revoke);
+    const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
+    const delegations = validNetworks
+      .map(({ rpcUrl, registry, name })=> ({ provider: rpcUrl, address: registry, name }))
+      .map((network: NetworkConfig) => this.revokeOnBlockchain(network, delegatedDID, issuerCredentials));
+
+    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value 
+    const settledDelegations: any = await Promise.allSettled(delegations);
+
+    return settledDelegations.map((result, index) => ({
+      network: validNetworks[index].name,
+      ...result,
+    }));
   }
 
   /**
