@@ -182,7 +182,7 @@ export class BlockchainManager {
     if (didBlockchain1 == null || didBlockchain2 == null){
       return (didAddress1 === didAddress2);
     } else {
-      return !( didAddress1 != didAddress2 || didBlockchain1 != didBlockchain2 );
+      return ( didAddress1 === didAddress2 && didBlockchain1 === didBlockchain2 );
     }
     }    
 
