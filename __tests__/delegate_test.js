@@ -58,7 +58,7 @@ describe("BlockchainManager Delegation", () => {
       const prefixToAdd = "";
       const delegateTxs = await addDelegation(prefixToAdd, delegateIdentity);
       delegateTxs.forEach(({network, status}) => {
-        const expectedStatus = network !== 'mainnet' ? 'fulfilled' : 'rejected';
+        const expectedStatus = network === 'mainnet' || network === 'goerli' ? 'rejected' : 'fulfilled' ;
         expect(status).toBe(expectedStatus)
       });
     });
@@ -87,7 +87,7 @@ describe("BlockchainManager Delegation", () => {
       );
 
       revokeTxs.forEach(({ network, status }) => {
-        const expectedStatus = network !== 'mainnet' ? 'fulfilled' : 'rejected';
+        const expectedStatus = network === 'mainnet' || network === 'goerli' ? 'rejected' : 'fulfilled' ;
         expect(status).toBe(expectedStatus)
       });
     });
