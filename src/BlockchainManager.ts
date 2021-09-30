@@ -331,7 +331,9 @@ export class BlockchainManager {
         delegateAddr
       );
     });
-    return Promise.any(validations);
+    return Promise.allSettled(validations).then(
+      (results) => results.some(result => result.value === true)
+    );
   }
 
   /**
