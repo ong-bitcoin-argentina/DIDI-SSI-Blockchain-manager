@@ -75,7 +75,11 @@ const DIDS = {
   didWithNwtwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   didWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
   did:"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
-  network:"lacchain"
+  network:"lacchain",
+  otherDidWithNetwork: "did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
+  otherDidSameNetwork: "did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  otherDidOtherNetwork: "did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
+  otherDidWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
 }
 
 module.exports = {
