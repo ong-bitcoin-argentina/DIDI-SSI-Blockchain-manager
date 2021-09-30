@@ -171,6 +171,21 @@ export class BlockchainManager {
     return didAsArray.join(':');
   } 
 
+  /** Compare dids
+    */
+  static compareDid(did1: string, did2:string){
+    const didAddress1=BlockchainManager.getDidAddress(did1);
+    const didAddress2=BlockchainManager.getDidAddress(did2);
+    const didBlockchain1=BlockchainManager.getDidBlockchain(did1);
+    const didBlockchain2=BlockchainManager.getDidBlockchain(did2);
+
+    if (didBlockchain1 == null || didBlockchain2 == null){
+      return (didAddress1 === didAddress2);
+    } else {
+      return !( didAddress1 != didAddress2 || didBlockchain1 != didBlockchain2 );
+    }
+    }    
+
   /**
    * If syncing throws #blockchainManager-nodeIsSyncing  
    * @param web3 
