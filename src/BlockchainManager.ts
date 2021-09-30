@@ -256,20 +256,18 @@ export class BlockchainManager {
       return this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity);
     }
 
-    const delegations = this.config.providerConfig.networks.map(network => {
-      const blockchainToConnect: NetworkConfig = {
-        provider: network.rpcUrl,
-        address: network.registry,
-        name: network.name,
-      };
-      return this.delegateOnBlockchain(
-        blockchainToConnect, 
-        identity, 
-        delegateDID,
-        validity,
-      );
-    });
-    return Promise.allSettled(delegations);
+    const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
+    const delegations = validNetworks
+      .map(({ rpcUrl, registry, name })=> ({ provider: rpcUrl, address: registry, name }))
+      .map((network: NetworkConfig) => this.delegateOnBlockchain(network, identity, delegateDID, validity));
+
+    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value 
+    const settledDelegations: any = await Promise.allSettled(delegations);
+
+    return settledDelegations.map((result, index) => ({
+      network: validNetworks[index].name,
+      ...result,
+    }));
   }
 
   /**
@@ -543,19 +541,18 @@ export class BlockchainManager {
       return this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials);
     }
 
-    const revoke = this.config.providerConfig.networks.map(network => {
-      const blockchainToConnect: NetworkConfig = {
-        provider: network.rpcUrl,
-        address: network.registry,
-        name: network.name,
-      };
-      return this.revokeOnBlockchain(
-        blockchainToConnect, 
-        delegatedDID, 
-        issuerCredentials
-      );
-    });
-    return Promise.allSettled(revoke);
+    const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
+    const delegations = validNetworks
+      .map(({ rpcUrl, registry, name })=> ({ provider: rpcUrl, address: registry, name }))
+      .map((network: NetworkConfig) => this.revokeOnBlockchain(network, delegatedDID, issuerCredentials));
+
+    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value 
+    const settledDelegations: any = await Promise.allSettled(delegations);
+
+    return settledDelegations.map((result, index) => ({
+      network: validNetworks[index].name,
+      ...result,
+    }));
   }
 
   /**

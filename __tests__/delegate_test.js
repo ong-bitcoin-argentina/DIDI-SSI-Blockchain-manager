@@ -54,10 +54,13 @@ async function addDelegation(prefixToAdd, delegateIdentity) {
 describe("BlockchainManager Delegation", () => {
   describe("On ANY blochchain should", () => {
     const delegateIdentity = createIdentity();
-    it("be able to delegate did without prefix on some network", async () => {
+    it("be able to delegate did without prefix", async () => {
       const prefixToAdd = "";
       const delegateTxs = await addDelegation(prefixToAdd, delegateIdentity);
-      expect(delegateTxs.some(tx => tx.status = 'fulfilled' && tx.value )).toBeTruthy();
+      delegateTxs.forEach(({network, status}) => {
+        const expectedStatus = network !== 'mainnet' ? 'fulfilled' : 'rejected';
+        expect(status).toBe(expectedStatus)
+      });
     });
 
     it("fail when invalid prefix is received", async () => {
@@ -78,14 +81,15 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("Fail to revoke delegation on Mainnet due to insufficients funds", async () => {
-      const revokeDelegate = await blockchainManager.revokeDelegate(
+      const revokeTxs = await blockchainManager.revokeDelegate(
         issuerIdentity,
         delegateIdentity.did
       );
-      
-      expect(revokeDelegate.some(tx => 
-        tx.status === 'rejected' && tx.reason.message.includes('insufficient funds for gas * price + value')
-      )).toBeTruthy;
+
+      revokeTxs.forEach(({ network, status }) => {
+        const expectedStatus = network !== 'mainnet' ? 'fulfilled' : 'rejected';
+        expect(status).toBe(expectedStatus)
+      });
     });
 
     it("Fail verification due to revoked delegation on all networks", async () => {
