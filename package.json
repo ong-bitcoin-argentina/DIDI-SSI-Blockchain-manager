@@ -28,10 +28,13 @@
   },
   "scripts": {
     "test": "jest",
+    "test:npm": "npm publish --access public --dry-run",
     "posttest": "coveralls < coverage/lcov.info",
     "build": "tsc",
     "typeCheck": "tsc --noEmit",
-    "lint": "eslint"
+    "lint": "eslint",
+    "prenpm:publish": "npm run lint && npm run build",
+    "npm:publish": "npm publish --access public"
   },
   "description": "Project to abstract the use of multiblockains in DIDI project",
   "main": "dist/index.js",
