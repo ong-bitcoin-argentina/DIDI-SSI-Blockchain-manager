@@ -149,7 +149,7 @@ export class BlockchainManager {
   
   /**
    * 
-   * @param {string } did Did to get the blockchain name from
+   * @param {string} did Did to get the blockchain name from
    */
   static getDidBlockchain(did: string) {
     const didAsArray = did.split(":");
@@ -160,8 +160,8 @@ export class BlockchainManager {
   /**
    * Add a blockchain beofre the ethereum address. Throws if already contains
    * a blockchain. did:ethr:0x123 => did:ethr:rinkeby:0x123
-   * @param did Did to add the blockchain
-   * @param blockchain Blockchain to add
+   * @param {string} did Did to add the blockchain
+   * @param {string} blockchain Blockchain to add
    */
   static addBlockchainToDid(did: string, blockchain: string) {
     const didAsArray = did.split(":");
@@ -171,8 +171,17 @@ export class BlockchainManager {
     return didAsArray.join(':');
   } 
 
-  /** Compare dids
-    */
+  /**
+   * Compare two dids DIDs. A DIDI without netowors is equal to a DID with network and
+   * same address. Two DIDs with same netork and different address are different. Ex:
+   * did:ethr:net:0x123 == did:ethr:0x123
+   * did:ethr:net1:0x123 != did:ethr:net2:0x123
+   * did:ethr:net:0x123 != did:ethr:net:0x124
+   * did:ethr:0x123 != did:ethr:0x124
+   * did:ethr:net1:0x123 != did:ethr:net2:0x124
+   * @param {string} did1 
+   * @param {string} did2 
+   */
   static compareDid(did1: string, did2:string){
     const didAddress1=BlockchainManager.getDidAddress(did1);
     const didAddress2=BlockchainManager.getDidAddress(did2);
