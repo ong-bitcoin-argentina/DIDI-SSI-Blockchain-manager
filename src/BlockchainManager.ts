@@ -11,7 +11,7 @@ const EthrDID = require("ethr-did");
 const blockChainSelector = (
   networkConfig: { name: string; rpcUrl: string; registry: string }[],
   did: string
-) => {
+): NetworkConfig => {
   let routerCharPos = -1,
     index = -1,
     i = 1;
@@ -308,7 +308,7 @@ export class BlockchainManager {
    * @param {String} identityAddr 
    * @param {String} delegateAddr 
    */
-  private async validateOnBlockchains(blockchainToConnect: any, identityAddr: string, delegateAddr: string) {
+  private async validateOnBlockchain(blockchainToConnect: NetworkConfig, identityAddr: string, delegateAddr: string) {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
@@ -346,7 +346,7 @@ export class BlockchainManager {
         this.config.providerConfig.networks,
         delegateDID
       );
-      return this.validateOnBlockchains(blockchainToConnect, identityAddr, delegateAddr);
+      return this.validateOnBlockchain(blockchainToConnect, identityAddr, delegateAddr);
     };
 
     const validations = this.config.providerConfig.networks.map(network => {
@@ -355,7 +355,7 @@ export class BlockchainManager {
         address: network.registry,
         name: network.name,
       };
-      return this.validateOnBlockchains(
+      return this.validateOnBlockchain(
         blockchainToConnect, 
         identityAddr, 
         delegateAddr
@@ -566,7 +566,7 @@ export class BlockchainManager {
     const blockchain = BlockchainManager.getDidBlockchain(delegatedDID);
 
     if (blockchain) {
-      const blockchainToConnect = blockChainSelector(
+      const blockchainToConnect: NetworkConfig = blockChainSelector(
         this.config.providerConfig.networks,
         delegatedDID
       );
