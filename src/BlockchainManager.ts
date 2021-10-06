@@ -90,6 +90,12 @@ interface NetworkConfig {
   name: string,
 }
 
+interface addDelegateResponse {
+  status: 'fulfilled' | 'rejected',
+  network: string,
+  value: any
+}
+
 export class BlockchainManager {
   config: BlockchainManagerConfig;
   didResolver: Resolver;
@@ -269,7 +275,7 @@ export class BlockchainManager {
    * @param {string}  delegateDID
    * @param {string}  validity
    */
-  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
+  async addDelegate(identity: Identity, delegateDID: string, validity: string): Promise<addDelegateResponse[]> {
     const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
 
     if (blockchain) {
@@ -277,7 +283,9 @@ export class BlockchainManager {
         this.config.providerConfig.networks,
         delegateDID
       );
-      return this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity);
+      const delegations: any = await Promise.allSettled([this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity)]);  
+      delegations[0].network = blockchainToConnect.name;
+      return delegations;
     }
 
     const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
