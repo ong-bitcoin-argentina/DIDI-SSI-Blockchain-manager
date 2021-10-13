@@ -11,7 +11,7 @@ const EthrDID = require("ethr-did");
 const blockChainSelector = (
   networkConfig: { name: string; rpcUrl: string; registry: string }[],
   did: string
-) => {
+): NetworkConfig => {
   let routerCharPos = -1,
     index = -1,
     i = 1;
@@ -90,6 +90,12 @@ interface NetworkConfig {
   name: string,
 }
 
+interface OperationResponse {
+  status: 'fulfilled' | 'rejected',
+  network: string,
+  value: any
+}
+
 export class BlockchainManager {
   config: BlockchainManagerConfig;
   didResolver: Resolver;
@@ -149,7 +155,7 @@ export class BlockchainManager {
   
   /**
    * 
-   * @param {string } did Did to get the blockchain name from
+   * @param {string} did Did to get the blockchain name from
    */
   static getDidBlockchain(did: string) {
     const didAsArray = did.split(":");
@@ -160,8 +166,8 @@ export class BlockchainManager {
   /**
    * Add a blockchain beofre the ethereum address. Throws if already contains
    * a blockchain. did:ethr:0x123 => did:ethr:rinkeby:0x123
-   * @param did Did to add the blockchain
-   * @param blockchain Blockchain to add
+   * @param {string} did Did to add the blockchain
+   * @param {string} blockchain Blockchain to add
    */
   static addBlockchainToDid(did: string, blockchain: string) {
     const didAsArray = did.split(":");
@@ -171,8 +177,17 @@ export class BlockchainManager {
     return didAsArray.join(':');
   } 
 
-  /** Compare dids
-    */
+  /**
+   * Compare two dids DIDs. A DIDI without netowors is equal to a DID with network and
+   * same address. Two DIDs with same netork and different address are different. Ex:
+   * did:ethr:net:0x123 == did:ethr:0x123
+   * did:ethr:net1:0x123 != did:ethr:net2:0x123
+   * did:ethr:net:0x123 != did:ethr:net:0x124
+   * did:ethr:0x123 != did:ethr:0x124
+   * did:ethr:net1:0x123 != did:ethr:net2:0x124
+   * @param {string} did1 
+   * @param {string} did2 
+   */
   static compareDid(did1: string, did2:string){
     const didAddress1=BlockchainManager.getDidAddress(did1);
     const didAddress2=BlockchainManager.getDidAddress(did2);
@@ -260,7 +275,7 @@ export class BlockchainManager {
    * @param {string}  delegateDID
    * @param {string}  validity
    */
-  async addDelegate(identity: Identity, delegateDID: string, validity: string) {
+  async addDelegate(identity: Identity, delegateDID: string, validity: string): Promise<OperationResponse[]> {
     const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
 
     if (blockchain) {
@@ -268,7 +283,9 @@ export class BlockchainManager {
         this.config.providerConfig.networks,
         delegateDID
       );
-      return this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity);
+      const delegations: any = await Promise.allSettled([this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity)]);  
+      delegations[0].network = blockchainToConnect.name;
+      return delegations;
     }
 
     const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
@@ -291,7 +308,7 @@ export class BlockchainManager {
    * @param {String} identityAddr 
    * @param {String} delegateAddr 
    */
-  private async validateOnBlockchains(blockchainToConnect: any, identityAddr: string, delegateAddr: string) {
+  private async validateOnBlockchain(blockchainToConnect: NetworkConfig, identityAddr: string, delegateAddr: string) {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
@@ -329,7 +346,7 @@ export class BlockchainManager {
         this.config.providerConfig.networks,
         delegateDID
       );
-      return this.validateOnBlockchains(blockchainToConnect, identityAddr, delegateAddr);
+      return this.validateOnBlockchain(blockchainToConnect, identityAddr, delegateAddr);
     };
 
     const validations = this.config.providerConfig.networks.map(network => {
@@ -338,7 +355,7 @@ export class BlockchainManager {
         address: network.registry,
         name: network.name,
       };
-      return this.validateOnBlockchains(
+      return this.validateOnBlockchain(
         blockchainToConnect, 
         identityAddr, 
         delegateAddr
@@ -545,15 +562,17 @@ export class BlockchainManager {
    * @param {Identity}  issuerCredentials
    * @param {string}  delegatedDID
    */
-  async revokeDelegate(issuerCredentials, delegatedDID) {
+  async revokeDelegate(issuerCredentials, delegatedDID): Promise<OperationResponse[]> {
     const blockchain = BlockchainManager.getDidBlockchain(delegatedDID);
 
     if (blockchain) {
-      const blockchainToConnect = blockChainSelector(
+      const blockchainToConnect: NetworkConfig = blockChainSelector(
         this.config.providerConfig.networks,
         delegatedDID
       );
-      return this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials);
+      const revoke: any = await Promise.allSettled([this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials)])
+      revoke[0].network = blockchainToConnect.name;
+      return revoke;
     }
 
     const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
