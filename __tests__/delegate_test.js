@@ -155,9 +155,10 @@ describe("BlockchainManager Delegation", () => {
 
     it("be able to addDelegate on RSK", async () => {
       const prefixToAdd = "rsk:";
-      const tx = await addDelegation(prefixToAdd, delegateIdentity);
-      expect(tx).toBeDefined();
-      expect(tx.status).toBeTruthy();
+      const response = await addDelegation(prefixToAdd, delegateIdentity);
+      expect(response[0].status).toBe('fulfilled');
+      expect(response[0].network).toBe('rsk');
+      expect(response[0].value).toBeDefined();
     });
 
     it("be able to addDelegate 3 times simultaneously on RSK", async () => {
@@ -169,8 +170,9 @@ describe("BlockchainManager Delegation", () => {
 
       const delegtions = await Promise.all(delegateTxs);
       for (let i = 0; i < 3; i++) {
-        expect(delegtions[i]).toBeDefined();
-        expect(delegtions[i].status).toBeTruthy();
+        expect(delegtions[i][0].status).toBe('fulfilled');;
+        expect(delegtions[i][0].network).toBe('rsk');
+        expect(delegtions[i][0].value).toBeDefined();
       }
     });
 
@@ -187,11 +189,16 @@ describe("BlockchainManager Delegation", () => {
     it("Revoke delegation on RSK", async () => {
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
+      const response = await blockchainManager.revokeDelegate(
         issuerIdentity,
         prefixAddedDid
       );
-      const { validTo } = revokeDelegate.events.DIDDelegateChanged.returnValues;
+      
+      expect(response[0].status).toBe('fulfilled');
+      expect(response[0].network).toBe('rsk');
+      expect(response[0].value).toBeDefined();
+      
+      const { validTo } = response[0].value.events.DIDDelegateChanged.returnValues;
       expect(parseInt(validTo) - Date.now() / 1000).toBeLessThan(500);
     });
 
@@ -222,9 +229,10 @@ describe("BlockchainManager Delegation", () => {
 
     it("be able to addDelegate on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
-      const tx = await addDelegation(prefixToAdd, delegateIdentity);
-      expect(tx).toBeDefined();
-      expect(tx.status).toBeTruthy();
+      const response = await addDelegation(prefixToAdd, delegateIdentity);
+      expect(response[0].status).toBe('fulfilled');
+      expect(response[0].network).toBe('lacchain');
+      expect(response[0].value).toBeDefined();
     });
 
     it("be able to addDelegate 3 times simultaneously on LACCHAIN", async () => {
@@ -236,8 +244,9 @@ describe("BlockchainManager Delegation", () => {
 
       const delegtions = await Promise.all(delegateTxs);
       for (let i = 0; i < 3; i++) {
-        expect(delegtions[i]).toBeDefined();
-        expect(delegtions[i].status).toBeTruthy();
+        expect(delegtions[i][0].status).toBe('fulfilled');;
+        expect(delegtions[i][0].network).toBe('lacchain');
+        expect(delegtions[i][0].network).toBeDefined();
       }
     });
 
@@ -254,11 +263,16 @@ describe("BlockchainManager Delegation", () => {
     it("Revoke delegation on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
+      const response = await blockchainManager.revokeDelegate(
         issuerIdentity,
         prefixAddedDid
       );
-      const { validTo } = revokeDelegate.events.DIDDelegateChanged.returnValues;
+      
+      expect(response[0].status).toBe('fulfilled');
+      expect(response[0].network).toBe('lacchain');
+      expect(response[0].value).toBeDefined();
+      
+      const { validTo } = response[0].value.events.DIDDelegateChanged.returnValues;
       expect(parseInt(validTo) - Date.now() / 1000).toBeLessThan(500);
     });
 
@@ -289,9 +303,10 @@ describe("BlockchainManager Delegation", () => {
 
     it("be able to addDelegate on BFA", async () => {
       const prefixToAdd = "bfa:";
-      const tx = await addDelegation(prefixToAdd, delegateIdentity);
-      expect(tx).toBeDefined();
-      expect(tx.status).toBeTruthy();
+      const response = await addDelegation(prefixToAdd, delegateIdentity);
+      expect(response[0].status).toBe('fulfilled');
+      expect(response[0].network).toBe('bfa');
+      expect(response[0].value).toBeDefined();
     });
 
     it("be able to addDelegate 3 times simultaneously on BFA", async () => {
@@ -303,8 +318,9 @@ describe("BlockchainManager Delegation", () => {
 
       const delegtions = await Promise.all(delegateTxs);
       for (let i = 0; i < 3; i++) {
-        expect(delegtions[i]).toBeDefined();
-        expect(delegtions[i].status).toBeTruthy();
+        expect(delegtions[i][0].status).toBe('fulfilled');;
+        expect(delegtions[i][0].network).toBe('bfa');
+        expect(delegtions[i][0].network).toBeDefined();
       }
     });
 
@@ -321,11 +337,16 @@ describe("BlockchainManager Delegation", () => {
     it("Revoke delegation on BFA", async () => {
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const revokeDelegate = await blockchainManager.revokeDelegate(
+      const response = await blockchainManager.revokeDelegate(
         issuerIdentity,
         prefixAddedDid
       );
-      const { validTo } = revokeDelegate.events.DIDDelegateChanged.returnValues;
+      
+      expect(response[0].status).toBe('fulfilled');
+      expect(response[0].network).toBe('bfa');
+      expect(response[0].value).toBeDefined();
+      
+      const { validTo } = response[0].value.events.DIDDelegateChanged.returnValues;
       expect(parseInt(validTo) - Date.now() / 1000).toBeLessThan(500);
     });
 
