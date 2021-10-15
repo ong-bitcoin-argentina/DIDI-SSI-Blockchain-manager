@@ -11,14 +11,14 @@
 // These tests verify the following methods:                                      //
 // - verifyJWT                                                                    //
 // - decodeJWT                                                                    //
-// - createCertificate                                                            //
-// - verifyCertificate                                                            //
+// - createCredential                                                             //
+// - verifyCredential                                                             //
 //                                                                                //
 // To run these tests you must have a DELEGATOR DID address and its private key   //
 // with some $$$ in it, to execute the transaction and pay the fee.               //
 // This info must be added also in the .env file. (check out README file)         //
 ////////////////////////////////////////////////////////////////////////////////////
-
+import { BlockchainManager } from '../src'
 
 const Constants = require("./constants/Constants");
 const { initializeBlockchainManager } = require("./utils/utils");
@@ -28,7 +28,7 @@ const config = {
   providerConfig: Constants.BLOCKCHAIN.PROVIDER_CONFIG,
 };
 
-let blockchainManager;
+let blockchainManager: BlockchainManager;
 let jwt;
 let payload;
 let createdCredential;
@@ -186,7 +186,7 @@ describe("Blockchain Manager Credentials on MAINNET should", () => {
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
-    const result = await blockchainManager.createCertificate(
+    const result = await blockchainManager.createCredential(
       subjectIdentity.did,
       subject,
       aYearFromNow,
@@ -198,7 +198,7 @@ describe("Blockchain Manager Credentials on MAINNET should", () => {
   });
 
   it("verify a created Credential with mainnet did", async () => {
-    const result = await blockchainManager.verifyCertificate(createdCredential);
+    const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
       personData.dni
@@ -214,7 +214,7 @@ describe("Blockchain Manager Credentials on RSK should", () => {
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
-    const result = await blockchainManager.createCertificate(
+    const result = await blockchainManager.createCredential(
       subjectIdentity.did,
       subject,
       aYearFromNow,
@@ -226,7 +226,7 @@ describe("Blockchain Manager Credentials on RSK should", () => {
   });
 
   it("verify a created Credential with rsk did", async () => {
-    const result = await blockchainManager.verifyCertificate(createdCredential);
+    const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
       personData.dni
@@ -242,7 +242,7 @@ describe("Blockchain Manager Credentials on LACCHAIN should", () => {
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
-    const result = await blockchainManager.createCertificate(
+    const result = await blockchainManager.createCredential(
       subjectIdentity.did,
       subject,
       aYearFromNow,
@@ -254,7 +254,7 @@ describe("Blockchain Manager Credentials on LACCHAIN should", () => {
   });
 
   it("verify a created Credential with lacchain did", async () => {
-    const result = await blockchainManager.verifyCertificate(createdCredential);
+    const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
       personData.dni
@@ -270,7 +270,7 @@ describe("Blockchain Manager Credentials on BFA should", () => {
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
-    const result = await blockchainManager.createCertificate(
+    const result = await blockchainManager.createCredential(
       subjectIdentity.did,
       subject,
       aYearFromNow,
@@ -282,7 +282,7 @@ describe("Blockchain Manager Credentials on BFA should", () => {
   });
 
   it("verify a created Credential with bfa did", async () => {
-    const result = await blockchainManager.verifyCertificate(createdCredential);
+    const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
       personData.dni

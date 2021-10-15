@@ -1,7 +1,8 @@
-const { BlockchainManager } = require("../../src/BlockchainManager");
+import { BlockchainManager } from "../../src/BlockchainManager";
 const { Credentials } = require("uport-credentials");
 
-export function initializeBlockchainManager(config) {
+
+export function initializeBlockchainManager(config): BlockchainManager  {
   const blockchainManager = new BlockchainManager(config);
   return blockchainManager;
 }

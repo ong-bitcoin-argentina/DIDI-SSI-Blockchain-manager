@@ -18,6 +18,8 @@
 // This info must be added also in the .env file. (check out README file)         //
 ////////////////////////////////////////////////////////////////////////////////////
 
+import { BlockchainManager } from "../src/BlockchainManager";
+
 
 const Constants = require("./constants/Constants");
 const { addPrefix } = require("../src/BlockchainManager");
@@ -31,7 +33,7 @@ const config = {
   providerConfig: Constants.BLOCKCHAIN.PROVIDER_CONFIG,
 };
 
-const blockchainManager = initializeBlockchainManager(config);
+const blockchainManager: BlockchainManager = initializeBlockchainManager(config);
 
 const issuerIdentity = {
   did: process.env.DELEGATOR_DID,
@@ -46,7 +48,7 @@ async function addDelegation(prefixToAdd, delegateIdentity) {
   const delegateTx = await blockchainManager.addDelegate(
     issuerIdentity,
     withPrefixDid,
-    1000
+    '1000'
   );
   return delegateTx;
 }
@@ -73,7 +75,7 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("verify delegation", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         delegateIdentity.did
       );
@@ -93,7 +95,7 @@ describe("BlockchainManager Delegation", () => {
     });
 
     it("Fail verification due to revoked delegation on all networks", async () => {
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         delegateIdentity.did
       );
@@ -102,7 +104,7 @@ describe("BlockchainManager Delegation", () => {
 
     it("Fail verification when delegation does not exists on all networks", async () => {
       const otherIdentity = createIdentity();
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         otherIdentity.did
       );
@@ -126,7 +128,7 @@ describe("BlockchainManager Delegation", () => {
       const prefixToAdd = "mainnet:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
       try {
-        await blockchainManager.validateDelegate(
+        await blockchainManager.validDelegate(
           issuerIdentity.did,
           prefixAddedDid
         );
@@ -179,7 +181,7 @@ describe("BlockchainManager Delegation", () => {
     it("verify delegation on RSK", async () => {
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -205,7 +207,7 @@ describe("BlockchainManager Delegation", () => {
     it("Fail verification due to revoked delegation on RSK", async () => {
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -216,7 +218,7 @@ describe("BlockchainManager Delegation", () => {
       const otherIdentity = createIdentity();
       const prefixToAdd = "rsk:";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -253,7 +255,7 @@ describe("BlockchainManager Delegation", () => {
     it("verify delegation on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -279,7 +281,7 @@ describe("BlockchainManager Delegation", () => {
     it("Fail verification due to revoked delegation on LACCHAIN", async () => {
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -290,7 +292,7 @@ describe("BlockchainManager Delegation", () => {
       const otherIdentity = createIdentity();
       const prefixToAdd = "lacchain:";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -327,7 +329,7 @@ describe("BlockchainManager Delegation", () => {
     it("verify delegation on BFA", async () => {
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -353,7 +355,7 @@ describe("BlockchainManager Delegation", () => {
     it("Fail verification due to revoked delegation on BFA", async () => {
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
@@ -365,7 +367,7 @@ describe("BlockchainManager Delegation", () => {
       const otherIdentity = createIdentity();
       const prefixToAdd = "bfa:";
       const prefixAddedDid = addPrefix(prefixToAdd, otherIdentity.did);
-      const validatedDelegate = await blockchainManager.validateDelegate(
+      const validatedDelegate = await blockchainManager.validDelegate(
         issuerIdentity.did,
         prefixAddedDid
       );
