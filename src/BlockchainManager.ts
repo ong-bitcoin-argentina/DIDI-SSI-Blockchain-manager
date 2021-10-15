@@ -67,33 +67,42 @@ const checkPrefix = function (prefix, networkArray) {
   return !notFounded;
 };
 
-interface BlockchainManagerConfig {
+export interface BlockchainManagerConfig {
   gasPrice: number;
   providerConfig: any;
 }
 
-interface Options {
+export interface Options {
   from: string;
   gasPrice?: number;
   gas?: number;
   nonce?: number;
 }
 
-interface Identity {
+export interface Identity {
   did: string;
   privateKey: string;
 }
 
-interface NetworkConfig {
+export interface NetworkConfig {
   provider: string,
   address: string,
   name: string,
 }
 
-interface OperationResponse {
+export interface OperationResponse {
   status: 'fulfilled' | 'rejected',
   network: string,
   value: any
+}
+
+export interface CredentialVerificationResponse {
+  isIssuerValid: boolean,
+  payload: any,
+  doc: any,
+  issuer: string,
+  signer: any,
+  jwt: string,
 }
 
 export class BlockchainManager {
@@ -103,11 +112,11 @@ export class BlockchainManager {
   gasPriceSafetyValue?: number;
   
 
-  constructor(config: BlockchainManagerConfig, gasSafetyValue: number, gasPriceSafetyValue: number) {
+  constructor(config: BlockchainManagerConfig, gasSafetyValue: number = 1.2, gasPriceSafetyValue: number = 1.1) {
     this.config = config;
     this.didResolver = new Resolver(getResolver(config.providerConfig));    
-    this.gasSafetyValue = gasSafetyValue || 1.2;
-    this.gasPriceSafetyValue = gasPriceSafetyValue || 1.1;
+    this.gasSafetyValue = gasSafetyValue;
+    this.gasPriceSafetyValue = gasPriceSafetyValue ;
   }
 
   static delegateType = delegateTypes.Secp256k1SignatureAuthentication2018;
@@ -308,7 +317,7 @@ export class BlockchainManager {
    * @param {String} identityAddr 
    * @param {String} delegateAddr 
    */
-  private async validateOnBlockchain(blockchainToConnect: NetworkConfig, identityAddr: string, delegateAddr: string) {
+  private async validateOnBlockchain(blockchainToConnect: NetworkConfig, identityAddr: string, delegateAddr: string): Promise<boolean> {
     const provider = new Web3.providers.HttpProvider(
       blockchainToConnect.provider
     );
@@ -332,12 +341,12 @@ export class BlockchainManager {
   }
 
   /**
-   * validate if delegateDID is delegate of identity
-   * @param {Identity}  identity
+   * validate if delegateDID is delegate of identityDID
+   * @param {Identity}  identityDID
    * @param {string}  delegateDID
    */
-  async validateDelegate(identity: string, delegateDID: string) {
-    const identityAddr = BlockchainManager.getDidAddress(identity);
+  async validDelegate(identityDID: string, delegateDID: string): Promise<boolean> {
+    const identityAddr = BlockchainManager.getDidAddress(identityDID);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
     const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
 
@@ -440,13 +449,13 @@ export class BlockchainManager {
    * @param {string} issuerDid The issuer might change and has different prefixes
    * @param {string} issuerPkey 
    */
-  async createCertificate(
+  async createCredential(
     subjectDid,
     subjectPayload,
     expirationDate,
     issuerDid,
     issuerPkey
-  ) {
+  ): Promise<string> {
     const cleanDid = issuerDid.split(":");
     const prefixedDid = cleanDid.slice(2).join(":");
 
@@ -473,20 +482,28 @@ export class BlockchainManager {
     const result = await createVerifiableCredential(vcPayload, vcIssuer);
     return result;
   }
+
   /**
-   * Verifies a credential using the universal resolver. 
-   * @param {string} jwt
+   * Verifies a credential using the universal resolver and verifies issuer
+   * @param {string} jwt Credential encoded as jwt
+   * @param {string} IdentityDid  Central entity DID, usually DIDI
    */
-  async verifyCertificate(jwt) {
-    const result = await verifyCredential(jwt, this.didResolver);
-    return result;
+  async verifyCredential(jwt: string, IdentityDid?: string): Promise<CredentialVerificationResponse> {
+    const credentialVerification =  verifyCredential(jwt, this.didResolver);
+    if(!IdentityDid) return credentialVerification;
+
+    const isIssuerValid = this.validDelegate(IdentityDid, credentialVerification.issuer);
+     return {
+      isIssuerValid,
+       ...credentialVerification,
+     }
   }
 
   /**
    * Given an prefix, genereates new privte and public keys. 
    * @param {string}  prefixToAdd
    */
-  createIdentity(prefixToAdd) {
+  createIdentity(prefixToAdd: string = '') {
     let prefixChecked = false,
       prefixedDid = null;
 
