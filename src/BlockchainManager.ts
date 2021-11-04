@@ -187,6 +187,20 @@ export class BlockchainManager {
   } 
 
   /**
+   * Remove netowrk from did. If the did doesn't contain a network, it returns same did
+   * did:ethr:net:0x123 => did:ethr:0x123
+   * did:ethr:0x123 => did:ethr:0x123
+   * 
+   * @param {string} did DID to remove the network
+   */
+  static removeBlockchainFromDid(did: string): string {
+    const didAsArray = did.split(':');
+    if ( didAsArray.length === 3) return did; 
+    didAsArray.splice(2,1);
+    return didAsArray.join(':');
+  }
+
+  /**
    * Compare two dids DIDs. A DIDI without netowors is equal to a DID with network and
    * same address. Two DIDs with same netork and different address are different. Ex:
    * did:ethr:net:0x123 == did:ethr:0x123
