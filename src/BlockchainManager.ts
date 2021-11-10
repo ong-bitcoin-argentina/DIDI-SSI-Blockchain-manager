@@ -419,11 +419,11 @@ export class BlockchainManager {
     payload.aud = audienceDID;
 
     const signer = didJWT.SimpleSigner(pkey);
-    const response = await didJWT.createJWT(payload, {
-      alg: "ES256K-R",
-      issuer: issuerDid,
-      signer,
-    });
+    const response = await didJWT.createJWT(
+      payload, 
+      { issuer: issuerDid, signer },
+      { alg: "ES256K-R" }
+    );
     return response;
   }
 
