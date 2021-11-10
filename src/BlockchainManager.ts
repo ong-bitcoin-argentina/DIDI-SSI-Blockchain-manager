@@ -2,7 +2,7 @@ import { Resolver } from "did-resolver";
 import Web3 from "web3";
 
 const { Credentials } = require("uport-credentials");
-const { createVerifiableCredential, verifyCredential } = require("did-jwt-vc");
+const { createVerifiableCredentialJwt, verifyCredential } = require("did-jwt-vc");
 const DidRegistryContract = require("ethr-did-registry");
 const didJWT = require("did-jwt");
 const { delegateTypes, getResolver } = require("ethr-did-resolver");
@@ -493,7 +493,7 @@ export class BlockchainManager {
     if (expirationDate) {
       vcPayload["exp"] = date;
     }
-    const result = await createVerifiableCredential(vcPayload, vcIssuer);
+    const result = await createVerifiableCredentialJwt(vcPayload, vcIssuer);
     return result;
   }
 
