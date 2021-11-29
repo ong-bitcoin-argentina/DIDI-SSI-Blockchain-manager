@@ -74,7 +74,7 @@ describe("Blockchain Manager on MAINNET should", () => {
     expect(result.jwt).toEqual(returnedJwt);
     expect(result.payload).toEqual(expect.objectContaining(payload));
     expect(result.issuer).toEqual(identity.did);
-    expect(result.didResolutionResult.didDocument).toBeDefined();
+    expect(result.doc).toBeDefined();
   });
 
   it("decode the jwt when invoking decodeJWT method from MAINNET", async () => {
@@ -99,7 +99,7 @@ describe("Blockchain Manager on RSK should", () => {
     expect(result.jwt).toEqual(returnedJwt);
     expect(result.payload).toEqual(expect.objectContaining(payload));
     expect(result.issuer).toEqual(identity.did);
-    expect(result.didResolutionResult.didDocument).toBeDefined();
+    expect(result.doc).toBeDefined();
   });
 
   it("decode the jwt when invoking decodeJWT method from RSK", async () => {
@@ -124,7 +124,7 @@ describe("Blockchain Manager on LACCHAIN should", () => {
     expect(result.jwt).toEqual(returnedJwt);
     expect(result.payload).toEqual(expect.objectContaining(payload));
     expect(result.issuer).toEqual(identity.did);
-    expect(result.didResolutionResult.didDocument).toBeDefined();
+    expect(result.doc).toBeDefined();
   });
 
   it("decode the jwt when invoking decodeJWT method from LACCHAIN", async () => {
@@ -149,7 +149,7 @@ describe("Blockchain Manager on BFA should", () => {
     expect(result.jwt).toEqual(returnedJwt);
     expect(result.payload).toEqual(expect.objectContaining(payload));
     expect(result.issuer).toEqual(identity.did);
-    expect(result.didResolutionResult.didDocument).toBeDefined();
+    expect(result.doc).toBeDefined();
   });
 
   it("decode the jwt when invoking decodeJWT method from BFA", async () => {

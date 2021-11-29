@@ -442,10 +442,12 @@ export class BlockchainManager {
    * @param {string} audienceDID DID of the audience if needed
    */
   async verifyJWT(jwt, audienceDID = undefined) {
-    return await didJWT.verifyJWT(jwt, {
+    let response = await didJWT.verifyJWT(jwt, {
       resolver: this.didResolver,
       audience: audienceDID,
     });
+    response.doc = response.didResolutionResult.didDocument;
+    return response;
   }
   /**
    * Waring: Use verifyJWT. Decodes a token and returns the contet.
