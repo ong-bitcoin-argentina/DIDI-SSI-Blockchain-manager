@@ -1,4 +1,4 @@
-////////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////////
 // INTEGRATION TESTS:                                                             //
 //                                                                                //
 // These tests run in real blockchain networks. This feature must be configured   //
@@ -17,11 +17,11 @@
 // To run these tests you must have a DELEGATOR DID address and its private key   //
 // with some $$$ in it, to execute the transaction and pay the fee.               //
 // This info must be added also in the .env file. (check out README file)         //
-////////////////////////////////////////////////////////////////////////////////////
-import { BlockchainManager } from '../src'
+/// /////////////////////////////////////////////////////////////////////////////////
+import { BlockchainManager } from '../src';
 
-const Constants = require("./constants/Constants");
-const { initializeBlockchainManager } = require("./utils/utils");
+const Constants = require('./constants/Constants');
+const { initializeBlockchainManager } = require('./utils/utils');
 
 const config = {
   gasPrice: 10000,
@@ -35,50 +35,52 @@ let createdCredential;
 
 const personData = {
   dni: 12345678,
-  names: "Homero",
-  lastNames: "Simpson",
-  nationality: "Argentina",
+  names: 'Homero',
+  lastNames: 'Simpson',
+  nationality: 'Argentina',
 };
 
 const subject = {
   DatosPersonales: {
     preview: {
-      fields: ["dni", "names", "lastNames", "nationality"],
+      fields: ['dni', 'names', 'lastNames', 'nationality'],
       type: 2,
     },
-    category: "identity",
+    category: 'identity',
     data: personData,
   },
 };
 
-let aYearFromNow = new Date();
+const aYearFromNow = new Date();
 aYearFromNow.setFullYear(aYearFromNow.getFullYear() + 1);
 
 async function createJWT(identity) {
   const signer = blockchainManager.getSigner(identity.privateKey);
-  payload = { name: "TEST" };
+  payload = { name: 'TEST' };
   jwt = await blockchainManager.createJWT(identity.did, identity.privateKey, {
     ...payload,
   });
   return jwt;
 }
 
-describe("Blockchain Manager on MAINNET should", () => {
+describe('blockchain Manager on MAINNET should', () => {
   let identity = null;
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a jwt with a MAINNET prefix DID and verify it", async () => {
+  it('create a jwt with a MAINNET prefix DID and verify it', async () => {
+    expect.assertions(4);
     identity = blockchainManager.createIdentity();
     const returnedJwt = await createJWT(identity);
     const result = await blockchainManager.verifyJWT(returnedJwt);
 
-    expect(result.jwt).toEqual(returnedJwt);
-    expect(result.payload).toEqual(expect.objectContaining(payload));
-    expect(result.issuer).toEqual(identity.did);
+    expect(result.jwt).toStrictEqual(returnedJwt);
+    expect(result.payload).toStrictEqual(expect.objectContaining(payload));
+    expect(result.issuer).toStrictEqual(identity.did);
     expect(result.doc).toBeDefined();
   });
 
-  it("decode the jwt when invoking decodeJWT method from MAINNET", async () => {
+  it('decode the jwt when invoking decodeJWT method from MAINNET', async () => {
+    expect.assertions(3);
     const result = await blockchainManager.decodeJWT(jwt);
 
     expect(result.signature).toBeDefined();
@@ -87,23 +89,25 @@ describe("Blockchain Manager on MAINNET should", () => {
   });
 });
 
-describe("Blockchain Manager on RSK should", () => {
+describe('blockchain Manager on RSK should', () => {
   let identity = null;
-  const prefixToAdd = "rsk";
+  const prefixToAdd = 'rsk';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a jwt with a RSK prefix DID and verify it", async () => {
+  it('create a jwt with a RSK prefix DID and verify it', async () => {
+    expect.assertions(4);
     identity = blockchainManager.createIdentity(prefixToAdd);
     const returnedJwt = await createJWT(identity);
     const result = await blockchainManager.verifyJWT(returnedJwt);
 
-    expect(result.jwt).toEqual(returnedJwt);
-    expect(result.payload).toEqual(expect.objectContaining(payload));
-    expect(result.issuer).toEqual(identity.did);
+    expect(result.jwt).toStrictEqual(returnedJwt);
+    expect(result.payload).toStrictEqual(expect.objectContaining(payload));
+    expect(result.issuer).toStrictEqual(identity.did);
     expect(result.doc).toBeDefined();
   });
 
-  it("decode the jwt when invoking decodeJWT method from RSK", async () => {
+  it('decode the jwt when invoking decodeJWT method from RSK', async () => {
+    expect.assertions(3);
     const result = await blockchainManager.decodeJWT(jwt);
 
     expect(result.signature).toBeDefined();
@@ -112,23 +116,25 @@ describe("Blockchain Manager on RSK should", () => {
   });
 });
 
-describe("Blockchain Manager on LACCHAIN should", () => {
+describe('blockchain Manager on LACCHAIN should', () => {
   let identity = null;
-  const prefixToAdd = "lacchain";
+  const prefixToAdd = 'lacchain';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a jwt with a LACCHAIN prefix DID and verify it", async () => {
+  it('create a jwt with a LACCHAIN prefix DID and verify it', async () => {
+    expect.assertions(4);
     identity = blockchainManager.createIdentity(prefixToAdd);
     const returnedJwt = await createJWT(identity);
     const result = await blockchainManager.verifyJWT(returnedJwt);
 
-    expect(result.jwt).toEqual(returnedJwt);
-    expect(result.payload).toEqual(expect.objectContaining(payload));
-    expect(result.issuer).toEqual(identity.did);
+    expect(result.jwt).toStrictEqual(returnedJwt);
+    expect(result.payload).toStrictEqual(expect.objectContaining(payload));
+    expect(result.issuer).toStrictEqual(identity.did);
     expect(result.doc).toBeDefined();
   });
 
-  it("decode the jwt when invoking decodeJWT method from LACCHAIN", async () => {
+  it('decode the jwt when invoking decodeJWT method from LACCHAIN', async () => {
+    expect.assertions(3);
     const result = await blockchainManager.decodeJWT(jwt);
 
     expect(result.signature).toBeDefined();
@@ -137,23 +143,25 @@ describe("Blockchain Manager on LACCHAIN should", () => {
   });
 });
 
-describe("Blockchain Manager on BFA should", () => {
+describe('blockchain Manager on BFA should', () => {
   let identity = null;
-  const prefixToAdd = "bfa";
+  const prefixToAdd = 'bfa';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a jwt with a BFA prefix DID and verify it", async () => {
+  it('create a jwt with a BFA prefix DID and verify it', async () => {
+    expect.assertions(4);
     identity = blockchainManager.createIdentity(prefixToAdd);
     const returnedJwt = await createJWT(identity);
     const result = await blockchainManager.verifyJWT(returnedJwt);
 
-    expect(result.jwt).toEqual(returnedJwt);
-    expect(result.payload).toEqual(expect.objectContaining(payload));
-    expect(result.issuer).toEqual(identity.did);
+    expect(result.jwt).toStrictEqual(returnedJwt);
+    expect(result.payload).toStrictEqual(expect.objectContaining(payload));
+    expect(result.issuer).toStrictEqual(identity.did);
     expect(result.doc).toBeDefined();
   });
 
-  it("decode the jwt when invoking decodeJWT method from BFA", async () => {
+  it('decode the jwt when invoking decodeJWT method from BFA', async () => {
+    expect.assertions(3);
     const result = await blockchainManager.decodeJWT(jwt);
 
     expect(result.signature).toBeDefined();
@@ -162,27 +170,29 @@ describe("Blockchain Manager on BFA should", () => {
   });
 });
 
-describe("Blockchain Manager Credentials should", () => {
-  const prefixToAdd = "invalid";
+describe('blockchain Manager Credentials should', () => {
+  const prefixToAdd = 'invalid';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("FAIL when an invalid prefix is sent", async () => {
+  it('fAIL when an invalid prefix is sent', async () => {
+    expect.assertions(1);
     let issuerIdentity = null;
     try {
       issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     } catch (error) {
       expect(error).toBe(
-        "Invalid Prefix - Check Provider Network Configuration"
+        'Invalid Prefix - Check Provider Network Configuration',
       );
     }
   });
 });
 
-describe("Blockchain Manager Credentials on MAINNET should", () => {
-  const prefixToAdd = "";
+describe('blockchain Manager Credentials on MAINNET should', () => {
+  const prefixToAdd = '';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a Credential with mainnet did ", async () => {
+  it('create a Credential with mainnet did', async () => {
+    expect.assertions(1);
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
@@ -191,26 +201,28 @@ describe("Blockchain Manager Credentials on MAINNET should", () => {
       subject,
       aYearFromNow,
       issuerIdentity.did,
-      issuerIdentity.privateKey
+      issuerIdentity.privateKey,
     );
     createdCredential = result;
     expect(result).toBeDefined();
   });
 
-  it("verify a created Credential with mainnet did", async () => {
+  it('verify a created Credential with mainnet did', async () => {
+    expect.assertions(2);
     const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
-      personData.dni
+      personData.dni,
     );
   });
 });
 
-describe("Blockchain Manager Credentials on RSK should", () => {
-  const prefixToAdd = "rsk";
+describe('blockchain Manager Credentials on RSK should', () => {
+  const prefixToAdd = 'rsk';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a Credential with rsk did ", async () => {
+  it('create a Credential with rsk did', async () => {
+    expect.assertions(1);
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
@@ -219,26 +231,28 @@ describe("Blockchain Manager Credentials on RSK should", () => {
       subject,
       aYearFromNow,
       issuerIdentity.did,
-      issuerIdentity.privateKey
+      issuerIdentity.privateKey,
     );
     createdCredential = result;
     expect(result).toBeDefined();
   });
 
-  it("verify a created Credential with rsk did", async () => {
+  it('verify a created Credential with rsk did', async () => {
+    expect.assertions(2);
     const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
-      personData.dni
+      personData.dni,
     );
   });
 });
 
-describe("Blockchain Manager Credentials on LACCHAIN should", () => {
-  const prefixToAdd = "lacchain";
+describe('blockchain Manager Credentials on LACCHAIN should', () => {
+  const prefixToAdd = 'lacchain';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a Credential with lacchain did ", async () => {
+  it('create a Credential with lacchain did', async () => {
+    expect.assertions(1);
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
@@ -247,26 +261,28 @@ describe("Blockchain Manager Credentials on LACCHAIN should", () => {
       subject,
       aYearFromNow,
       issuerIdentity.did,
-      issuerIdentity.privateKey
+      issuerIdentity.privateKey,
     );
     createdCredential = result;
     expect(result).toBeDefined();
   });
 
-  it("verify a created Credential with lacchain did", async () => {
+  it('verify a created Credential with lacchain did', async () => {
+    expect.assertions(2);
     const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
-      personData.dni
+      personData.dni,
     );
   });
 });
 
-describe("Blockchain Manager Credentials on BFA should", () => {
-  const prefixToAdd = "bfa";
+describe('blockchain Manager Credentials on BFA should', () => {
+  const prefixToAdd = 'bfa';
   blockchainManager = initializeBlockchainManager(config);
 
-  it("create a Credential with bfa did ", async () => {
+  it('create a Credential with bfa did', async () => {
+    expect.assertions(1);
     const issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     const subjectIdentity = blockchainManager.createIdentity();
 
@@ -275,17 +291,18 @@ describe("Blockchain Manager Credentials on BFA should", () => {
       subject,
       aYearFromNow,
       issuerIdentity.did,
-      issuerIdentity.privateKey
+      issuerIdentity.privateKey,
     );
     createdCredential = result;
     expect(result).toBeDefined();
   });
 
-  it("verify a created Credential with bfa did", async () => {
+  it('verify a created Credential with bfa did', async () => {
+    expect.assertions(2);
     const result = await blockchainManager.verifyCredential(createdCredential);
     expect(result).toBeDefined();
     expect(result.payload.vc.credentialSubject.DatosPersonales.data.dni).toBe(
-      personData.dni
+      personData.dni,
     );
   });
 });
