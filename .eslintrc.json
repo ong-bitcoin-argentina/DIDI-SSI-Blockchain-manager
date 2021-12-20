@@ -30,6 +30,7 @@
         "jest/no-conditional-expect": "warn",
         "jest/require-hook": "warn",
         "jest/no-disabled-tests": "warn",
-        "jest/no-test-return-statement": "warn"
+        "jest/no-test-return-statement": "warn",
+        "no-param-reassign": "warn"
     }
 }
