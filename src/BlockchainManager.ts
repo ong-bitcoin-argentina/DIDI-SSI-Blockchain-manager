@@ -1,6 +1,8 @@
 import { Resolver } from 'did-resolver';
 import Web3 from 'web3';
 
+/* eslint-disable */
+
 const { Credentials } = require('uport-credentials');
 const { createVerifiableCredential, verifyCredential } = require('did-jwt-vc');
 const DidRegistryContract = require('ethr-did-registry');
@@ -12,9 +14,9 @@ const blockChainSelector = (
   networkConfig: { name: string; rpcUrl: string; registry: string }[],
   did: string,
 ): NetworkConfig => {
-  let routerCharPos = -1;
-  let index = -1;
-  let i = 1;
+  let routerCharPos = -1,
+    index = -1,
+    i = 1;
   let searchArray = true;
   const noUportPrefixDid = did.slice(9, did.length);
   routerCharPos = noUportPrefixDid.search(':'); // if routerCharPos > 0 there's another prefix, should search the provider array
@@ -29,7 +31,7 @@ const blockChainSelector = (
       index = i; // saves index for connection later
       searchArray = false;
     } else {
-      i += 1; // provider not found, keep going through array
+      i+=1; // provider not found, keep going through array
     }
   }
 
@@ -44,8 +46,9 @@ const blockChainSelector = (
     blockchainToConnect.address = networkConfig[index].registry;
     blockchainToConnect.name = networkConfig[index].name;
     return blockchainToConnect;
+  } else {
+    throw new Error('Invalid Provider Prefix');
   }
-  throw new Error('Invalid Provider Prefix');
 };
 
 export function addPrefix(prefixToAdd, did) {
@@ -54,13 +57,13 @@ export function addPrefix(prefixToAdd, did) {
 }
 
 const checkPrefix = function (prefix, networkArray) {
-  let i = 0;
-  let notFounded = true;
+  let i = 0,
+    notFounded = true;
   while (i < networkArray.length && notFounded) {
     if (prefix === networkArray[i].name) {
       notFounded = false;
     } else {
-      i += 1;
+      i++;
     }
   }
   return !notFounded;
@@ -112,14 +115,10 @@ export class BlockchainManager {
   gasSafetyValue?: number;
 
   gasPriceSafetyValue?: number;
-
-  constructor(
-    config: BlockchainManagerConfig,
-    gasSafetyValue: number = 1.2,
-    gasPriceSafetyValue: number = 1.1,
-  ) {
+  
+  constructor(config: BlockchainManagerConfig, gasSafetyValue: number = 1.2, gasPriceSafetyValue: number = 1.1) {
     this.config = config;
-    this.didResolver = new Resolver(getResolver(config.providerConfig));
+    this.didResolver = new Resolver(getResolver(config.providerConfig));    
     this.gasSafetyValue = gasSafetyValue;
     this.gasPriceSafetyValue = gasPriceSafetyValue;
   }
@@ -132,9 +131,7 @@ export class BlockchainManager {
    */
   async getGasPrice(web3) {
     const gasPrice = await web3.eth.getGasPrice();
-    const retGasPrice = Math.round(
-      parseInt(gasPrice, 10) * this.gasPriceSafetyValue,
-    );
+    const retGasPrice = Math.round(parseInt(gasPrice) * this.gasPriceSafetyValue);
     return retGasPrice;
   }
 
@@ -144,9 +141,7 @@ export class BlockchainManager {
    */
   async getGasLimit(method, options) {
     // 21000 is a recommended number
-    const gasQty = Math.round(
-      Math.max(await method.estimateGas(options), 21000) * this.gasSafetyValue,
-    );
+    const gasQty = Math.round(Math.max(await method.estimateGas(options), 21000) * this.gasSafetyValue);
     return gasQty;
   }
 
@@ -170,9 +165,9 @@ export class BlockchainManager {
     const cleanDid = did.split(':');
     return cleanDid[cleanDid.length - 1];
   }
-
+  
   /**
-   *
+   * 
    * @param {string} did Did to get the blockchain name from
    */
   static getDidBlockchain(did: string) {
@@ -189,24 +184,23 @@ export class BlockchainManager {
    */
   static addBlockchainToDid(did: string, blockchain: string) {
     const didAsArray = did.split(':');
-    if (didAsArray.length === 4)
-      throw new Error('#blockchainManager-didWithNetwork');
+    if ( didAsArray.length === 4) throw new Error('#blockchainManager-didWithNetwork');
 
-    didAsArray.splice(2, 0, blockchain);
+    didAsArray.splice(2, 0, blockchain)
     return didAsArray.join(':');
-  }
+  } 
 
   /**
    * Remove netowrk from did. If the did doesn't contain a network, it returns same did
    * did:ethr:net:0x123 => did:ethr:0x123
    * did:ethr:0x123 => did:ethr:0x123
-   *
+   * 
    * @param {string} did DID to remove the network
    */
   static removeBlockchainFromDid(did: string): string {
     const didAsArray = did.split(':');
-    if (didAsArray.length === 3) return did;
-    didAsArray.splice(2, 1);
+    if ( didAsArray.length === 3) return did; 
+    didAsArray.splice(2,1);
     return didAsArray.join(':');
   }
 
@@ -218,33 +212,33 @@ export class BlockchainManager {
    * did:ethr:net:0x123 != did:ethr:net:0x124
    * did:ethr:0x123 != did:ethr:0x124
    * did:ethr:net1:0x123 != did:ethr:net2:0x124
-   * @param {string} did1
-   * @param {string} did2
+   * @param {string} did1 
+   * @param {string} did2 
    */
-  static compareDid(did1: string, did2: string) {
-    const didAddress1 = BlockchainManager.getDidAddress(did1);
-    const didAddress2 = BlockchainManager.getDidAddress(did2);
-    const didBlockchain1 = BlockchainManager.getDidBlockchain(did1);
-    const didBlockchain2 = BlockchainManager.getDidBlockchain(did2);
+  static compareDid(did1: string, did2:string){
+    const didAddress1=BlockchainManager.getDidAddress(did1);
+    const didAddress2=BlockchainManager.getDidAddress(did2);
+    const didBlockchain1=BlockchainManager.getDidBlockchain(did1);
+    const didBlockchain2=BlockchainManager.getDidBlockchain(did2);
 
-    if (didBlockchain1 == null || didBlockchain2 == null) {
-      return didAddress1 === didAddress2;
+    if (didBlockchain1 == null || didBlockchain2 == null){
+      return (didAddress1 === didAddress2);
+    } else {
+      return ( didAddress1 === didAddress2 && didBlockchain1 === didBlockchain2 );
     }
-    return didAddress1 === didAddress2 && didBlockchain1 === didBlockchain2;
-  }
+    }    
 
   /**
-   * If syncing throws #blockchainManager-nodeIsSyncing
-   * @param web3
+   * If syncing throws #blockchainManager-nodeIsSyncing  
+   * @param web3 
    */
   async onlySynced(web3) {
     try {
       const isSyncingResponse = await web3.eth.isSyncing();
-      if (isSyncingResponse)
-        throw new Error('#blockchainManager-nodeIsSyncing');
+      if (!!isSyncingResponse) throw new Error('#blockchainManager-nodeIsSyncing');
     } catch (e) {
       // RSK public node don't allow eth_syncing. We assume that is always in sync
-      if (e.message.includes('403 Method Not Allowed')) {
+      if(e.message.includes('403 Method Not Allowed')) {
         return;
       }
       throw e;
@@ -253,19 +247,14 @@ export class BlockchainManager {
 
   /**
    * Given a network add delegateDID as a delegate of identity
-   * @param {NetworkConfig} blockchainToConnect
-   * @param {Identity} identity
-   * @param {string} delegateDID
-   * @param {string} validity
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {Identity} identity 
+   * @param {string} delegateDID 
+   * @param {string} validity 
    */
-  private async delegateOnBlockchain(
-    blockchainToConnect: NetworkConfig,
-    identity: Identity,
-    delegateDID: string,
-    validity: string,
-  ) {
+  private async delegateOnBlockchain(blockchainToConnect: NetworkConfig, identity: Identity, delegateDID: string, validity: string) {
     const provider = new Web3.providers.HttpProvider(
-      blockchainToConnect.provider,
+      blockchainToConnect.provider
     );
     const web3 = new Web3(provider);
     await this.onlySynced(web3);
@@ -279,7 +268,7 @@ export class BlockchainManager {
     const contract = BlockchainManager.getDidContract(
       options,
       blockchainToConnect.address,
-      web3,
+      web3
     );
     const account = web3.eth.accounts.privateKeyToAccount(identity.privateKey);
     web3.eth.accounts.wallet.add(account);
@@ -287,29 +276,21 @@ export class BlockchainManager {
       identityAddr,
       BlockchainManager.delegateType,
       delegateAddr,
-      validity,
+      validity
     );
 
     options.gas = await this.getGasLimit(addDelegateMethod, options);
     options.gasPrice = await this.getGasPrice(web3);
-    options.nonce =
-      blockchainToConnect.name !== 'lacchain'
-        ? await web3.eth.getTransactionCount(identityAddr, 'pending')
-        : undefined;
-
+    options.nonce = blockchainToConnect.name !== 'lacchain' ? await web3.eth.getTransactionCount(identityAddr, 'pending'): undefined;
+    
     let delegateMethodSent;
     try {
       delegateMethodSent = await addDelegateMethod.send(options);
     } catch (e) {
-      if (this.isUnknownError(e)) {
+      if (this.isUnknownError(e)) { 
         throw e;
       }
-      delegateMethodSent = await this.delegateOnBlockchain(
-        blockchainToConnect,
-        identity,
-        delegateDID,
-        validity,
-      );
+      delegateMethodSent = await this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity)
     }
     web3.eth.accounts.wallet.remove(account.address);
     return delegateMethodSent;
@@ -321,44 +302,25 @@ export class BlockchainManager {
    * @param {string}  delegateDID
    * @param {string}  validity
    */
-  async addDelegate(
-    identity: Identity,
-    delegateDID: string,
-    validity: string,
-  ): Promise<OperationResponse[]> {
+  async addDelegate(identity: Identity, delegateDID: string, validity: string): Promise<OperationResponse[]> {
     const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
 
     if (blockchain) {
       const blockchainToConnect: NetworkConfig = blockChainSelector(
         this.config.providerConfig.networks,
-        delegateDID,
+        delegateDID
       );
-      const delegations: any = await Promise.allSettled([
-        this.delegateOnBlockchain(
-          blockchainToConnect,
-          identity,
-          delegateDID,
-          validity,
-        ),
-      ]);
+      const delegations: any = await Promise.allSettled([this.delegateOnBlockchain(blockchainToConnect, identity, delegateDID, validity)]);  
       delegations[0].network = blockchainToConnect.name;
       return delegations;
     }
 
-    const validNetworks = this.config.providerConfig.networks.filter(
-      ({ name }) => !!name,
-    );
+    const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
     const delegations = validNetworks
-      .map(({ rpcUrl, registry, name }) => ({
-        provider: rpcUrl,
-        address: registry,
-        name,
-      }))
-      .map((network: NetworkConfig) =>
-        this.delegateOnBlockchain(network, identity, delegateDID, validity),
-      );
+      .map(({ rpcUrl, registry, name })=> ({ provider: rpcUrl, address: registry, name }))
+      .map((network: NetworkConfig) => this.delegateOnBlockchain(network, identity, delegateDID, validity));
 
-    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value
+    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value 
     const settledDelegations: any = await Promise.allSettled(delegations);
 
     return settledDelegations.map((result, index) => ({
@@ -369,17 +331,13 @@ export class BlockchainManager {
 
   /**
    * Given a blockchain and an issuer, validate the delegate
-   * @param {NetworkConfig} blockchainToConnect
-   * @param {String} identityAddr
-   * @param {String} delegateAddr
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {String} identityAddr 
+   * @param {String} delegateAddr 
    */
-  private async validateOnBlockchain(
-    blockchainToConnect: NetworkConfig,
-    identityAddr: string,
-    delegateAddr: string,
-  ): Promise<boolean> {
+  private async validateOnBlockchain(blockchainToConnect: NetworkConfig, identityAddr: string, delegateAddr: string): Promise<boolean> {
     const provider = new Web3.providers.HttpProvider(
-      blockchainToConnect.provider,
+      blockchainToConnect.provider
     );
     const web3 = new Web3(provider);
 
@@ -390,12 +348,12 @@ export class BlockchainManager {
     const contract = BlockchainManager.getDidContract(
       options,
       blockchainToConnect.address,
-      web3,
+      web3
     );
     const validDelegateMethod = contract.methods.validDelegate(
       identityAddr,
       BlockchainManager.delegateType,
-      delegateAddr,
+      delegateAddr
     );
     return validDelegateMethod.call(options);
   }
@@ -405,10 +363,7 @@ export class BlockchainManager {
    * @param {Identity}  identityDID
    * @param {string}  delegateDID
    */
-  async validDelegate(
-    identityDID: string,
-    delegateDID: string,
-  ): Promise<boolean> {
+  async validDelegate(identityDID: string, delegateDID: string): Promise<boolean> {
     const identityAddr = BlockchainManager.getDidAddress(identityDID);
     const delegateAddr = BlockchainManager.getDidAddress(delegateDID);
     const blockchain = BlockchainManager.getDidBlockchain(delegateDID);
@@ -416,32 +371,27 @@ export class BlockchainManager {
     if (blockchain) {
       const blockchainToConnect: NetworkConfig = blockChainSelector(
         this.config.providerConfig.networks,
-        delegateDID,
+        delegateDID
       );
-      return this.validateOnBlockchain(
-        blockchainToConnect,
-        identityAddr,
-        delegateAddr,
-      );
-    }
+      return this.validateOnBlockchain(blockchainToConnect, identityAddr, delegateAddr);
+    };
 
-    const validations = this.config.providerConfig.networks.map((network) => {
+    const validations = this.config.providerConfig.networks.map(network => {
       const blockchainToConnect: NetworkConfig = {
         provider: network.rpcUrl,
         address: network.registry,
         name: network.name,
       };
       return this.validateOnBlockchain(
-        blockchainToConnect,
-        identityAddr,
-        delegateAddr,
+        blockchainToConnect, 
+        identityAddr, 
+        delegateAddr
       );
     });
     let responses: any;
-    await Promise.allSettled(validations).then(
-      (results) => (responses = results),
-    );
-    return responses.some((result) => result.value === true);
+    await Promise.allSettled(validations)
+      .then((results) => responses = results);
+    return responses.some(result => result.value === true);
   }
 
   /**
@@ -467,9 +417,8 @@ export class BlockchainManager {
     pkey: string,
     payload: any,
     expiration: number = undefined,
-    audienceDID: string = undefined,
+    audienceDID: string = undefined
   ) {
-    /* eslint no-param-reassign: ["error", { "props": false }] */
     payload.exp = expiration;
     payload.aud = audienceDID;
 
@@ -497,13 +446,11 @@ export class BlockchainManager {
    * @param {string} audienceDID DID of the audience if needed
    */
   async verifyJWT(jwt, audienceDID = undefined) {
-    const resp = await didJWT.verifyJWT(jwt, {
+    return await didJWT.verifyJWT(jwt, {
       resolver: this.didResolver,
       audience: audienceDID,
     });
-    return resp;
   }
-
   /**
    * Waring: Use verifyJWT. Decodes a token and returns the contet.
    * @param {string}  jwt
@@ -511,21 +458,21 @@ export class BlockchainManager {
   async decodeJWT(jwt) {
     return didJWT.decodeJWT(jwt);
   }
-
+  
   /**
-   * genera un certificado asociando la informacion recibida en "subject" con el did
+   * genera un certificado asociando la informacion recibida en 'subject' con el did
    * @param {string} subjectDid This did has this prefix always (did:ethr:) it doesn't change
-   * @param {string} subjectPayload
-   * @param {Date} expirationDate
+   * @param {string} subjectPayload 
+   * @param {Date} expirationDate 
    * @param {string} issuerDid The issuer might change and has different prefixes
-   * @param {string} issuerPkey
+   * @param {string} issuerPkey 
    */
   async createCredential(
     subjectDid,
     subjectPayload,
     expirationDate,
     issuerDid,
-    issuerPkey,
+    issuerPkey
   ): Promise<string> {
     const cleanDid = issuerDid.split(':');
     const prefixedDid = cleanDid.slice(2).join(':');
@@ -535,7 +482,7 @@ export class BlockchainManager {
       privateKey: issuerPkey,
     });
     const date = expirationDate
-      ? new Date(expirationDate).getTime() / 1000 || 0
+      ? (new Date(expirationDate).getTime() / 1000) | 0
       : undefined;
 
     const vcPayload = {
@@ -548,7 +495,7 @@ export class BlockchainManager {
     };
 
     if (expirationDate) {
-      vcPayload.exp = date;
+      vcPayload['exp'] = date;
     }
     const result = await createVerifiableCredential(vcPayload, vcIssuer);
     return result;
@@ -559,46 +506,38 @@ export class BlockchainManager {
    * @param {string} jwt Credential encoded as jwt
    * @param {string} IdentityDid  Central entity DID, usually DIDI
    */
-  async verifyCredential(
-    jwt: string,
-    IdentityDid?: string,
-  ): Promise<CredentialVerificationResponse> {
-    const credentialVerification = verifyCredential(jwt, this.didResolver);
-    if (!IdentityDid) return credentialVerification;
+  async verifyCredential(jwt: string, IdentityDid?: string): Promise<CredentialVerificationResponse> {
+    const credentialVerification =  verifyCredential(jwt, this.didResolver);
+    if(!IdentityDid) return credentialVerification;
 
-    const isIssuerValid = this.validDelegate(
-      IdentityDid,
-      credentialVerification.issuer,
-    );
-    return {
+    const isIssuerValid = this.validDelegate(IdentityDid, credentialVerification.issuer);
+     return {
       isIssuerValid,
-      ...credentialVerification,
-    };
+       ...credentialVerification,
+     }
   }
 
   /**
-   * Given an prefix, genereates new privte and public keys.
+   * Given an prefix, genereates new privte and public keys. 
    * @param {string}  prefixToAdd
    */
   createIdentity(prefixToAdd: string = '') {
-    let prefixChecked = false;
-    let prefixedDid = null;
+    let prefixChecked = false,
+      prefixedDid = null;
 
     if (prefixToAdd) {
       prefixChecked = checkPrefix(
         prefixToAdd,
-        this.config.providerConfig.networks,
+        this.config.providerConfig.networks
       );
       if (!prefixChecked) {
-        throw new Error(
-          'Invalid Prefix - Check Provider Network Configuration',
-        );
+        throw 'Invalid Prefix - Check Provider Network Configuration';
       }
     }
     const credential = Credentials.createIdentity();
 
     if (prefixToAdd) {
-      prefixedDid = addPrefix(`${prefixToAdd}:`, credential.did);
+      prefixedDid = addPrefix(prefixToAdd + ':', credential.did);
       credential.did = prefixedDid;
     }
     return credential;
@@ -606,22 +545,16 @@ export class BlockchainManager {
 
   /**
    * Given a blockchain revoke a delegate
-   * @param {NetworkConfig} blockchainToConnect
-   * @param {string} delegatedDID
-   * @param {Identity} issuerCredentials
+   * @param {NetworkConfig} blockchainToConnect 
+   * @param {string} delegatedDID 
+   * @param {Identity} issuerCredentials 
    */
-  private async revokeOnBlockchain(
-    blockchainToConnect: NetworkConfig,
-    delegatedDID: string,
-    issuerCredentials: Identity,
-  ) {
-    const sourceAddress = BlockchainManager.getDidAddress(
-      issuerCredentials.did,
-    );
+  private async revokeOnBlockchain(blockchainToConnect: NetworkConfig, delegatedDID: string, issuerCredentials: Identity) {
+    const sourceAddress = BlockchainManager.getDidAddress(issuerCredentials.did);
     const targetAddress = BlockchainManager.getDidAddress(delegatedDID);
 
     const provider = new Web3.providers.HttpProvider(
-      blockchainToConnect.provider,
+      blockchainToConnect.provider
     );
     const web3 = new Web3(provider);
 
@@ -630,39 +563,33 @@ export class BlockchainManager {
     const contract = BlockchainManager.getDidContract(
       options,
       blockchainToConnect.address,
-      web3,
+      web3
     );
 
     const account = web3.eth.accounts.privateKeyToAccount(
-      issuerCredentials.privateKey,
+      issuerCredentials.privateKey
     );
     web3.eth.accounts.wallet.add(account);
 
     const revokeDelegateMethod = contract.methods.revokeDelegate(
       sourceAddress,
       BlockchainManager.delegateType,
-      targetAddress,
+      targetAddress
     );
     options.gas = await this.getGasLimit(revokeDelegateMethod, options);
     options.gasPrice = await this.getGasPrice(web3);
-    options.nonce =
-      blockchainToConnect.name !== 'lacchain'
-        ? await web3.eth.getTransactionCount(sourceAddress, 'pending')
-        : undefined;
+    options.nonce = blockchainToConnect.name !== 'lacchain' ? await web3.eth.getTransactionCount(sourceAddress, 'pending'): undefined;
     let revokeMethodSent;
     try {
       revokeMethodSent = await revokeDelegateMethod.send(options);
     } catch (e) {
-      if (this.isUnknownError(e)) {
+      if (this.isUnknownError(e)) { 
         throw e;
       }
-      revokeMethodSent = await this.revokeDelegate(
-        issuerCredentials,
-        delegatedDID,
-      );
+      revokeMethodSent = await this.revokeDelegate(issuerCredentials, delegatedDID)
     }
     web3.eth.accounts.wallet.remove(account.address);
-    return revokeMethodSent;
+    return revokeMethodSent;    
   }
 
   /**
@@ -670,42 +597,25 @@ export class BlockchainManager {
    * @param {Identity}  issuerCredentials
    * @param {string}  delegatedDID
    */
-  async revokeDelegate(
-    issuerCredentials,
-    delegatedDID,
-  ): Promise<OperationResponse[]> {
+  async revokeDelegate(issuerCredentials, delegatedDID): Promise<OperationResponse[]> {
     const blockchain = BlockchainManager.getDidBlockchain(delegatedDID);
 
     if (blockchain) {
       const blockchainToConnect: NetworkConfig = blockChainSelector(
         this.config.providerConfig.networks,
-        delegatedDID,
+        delegatedDID
       );
-      const revoke: any = await Promise.allSettled([
-        this.revokeOnBlockchain(
-          blockchainToConnect,
-          delegatedDID,
-          issuerCredentials,
-        ),
-      ]);
+      const revoke: any = await Promise.allSettled([this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials)])
       revoke[0].network = blockchainToConnect.name;
       return revoke;
     }
 
-    const validNetworks = this.config.providerConfig.networks.filter(
-      ({ name }) => !!name,
-    );
+    const validNetworks = this.config.providerConfig.networks.filter(({ name }) => !!name);
     const delegations = validNetworks
-      .map(({ rpcUrl, registry, name }) => ({
-        provider: rpcUrl,
-        address: registry,
-        name,
-      }))
-      .map((network: NetworkConfig) =>
-        this.revokeOnBlockchain(network, delegatedDID, issuerCredentials),
-      );
+      .map(({ rpcUrl, registry, name })=> ({ provider: rpcUrl, address: registry, name }))
+      .map((network: NetworkConfig) => this.revokeOnBlockchain(network, delegatedDID, issuerCredentials));
 
-    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value
+    // PromiseConstructor.allSettled<any>(values: any) should be an array ,but is a single value 
     const settledDelegations: any = await Promise.allSettled(delegations);
 
     return settledDelegations.map((result, index) => ({
@@ -715,16 +625,14 @@ export class BlockchainManager {
   }
 
   /**
-   * We dont want to bump txs. This only happen if simultaneous tx are sent, this resend recursively
+   * We dont want to bump txs. This only happen if simultaneous tx are sent, this resend recursively 
    * the tx increasing nonce by one
    * @param error
    */
   isUnknownError(error) {
-    return !(
-      error.message.includes('gas price not enough to bump transaction') ||
-      error.message.includes('transaction underpriced') ||
-      error.message.includes('too low') ||
-      error.message.includes('too high')
-    );
+    return !(error.message.includes('gas price not enough to bump transaction')
+    || error.message.includes('transaction underpriced')
+    || error.message.includes('too low') 
+    || error.message.includes('too high'))
   }
 }

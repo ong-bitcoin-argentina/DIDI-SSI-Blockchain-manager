@@ -13,7 +13,6 @@ const config = {
 
 let blockchainManager: BlockchainManager;
 let jwt: string;
-let createdCredential;
 
 const subject = {
   DatosPersonales: {
@@ -34,8 +33,8 @@ const subject = {
 const aYearFromNow = new Date();
 aYearFromNow.setFullYear(aYearFromNow.getFullYear() + 1);
 
+/* eslint-disable-next-line no-unused-vars */
 async function createJWT(identity): Promise<object> {
-  const signer = blockchainManager.getSigner(identity.privateKey);
   const payload = { name: 'TEST' };
   jwt = await blockchainManager.createJWT(
     identity.did,

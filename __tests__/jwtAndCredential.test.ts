@@ -55,7 +55,6 @@ const aYearFromNow = new Date();
 aYearFromNow.setFullYear(aYearFromNow.getFullYear() + 1);
 
 async function createJWT(identity) {
-  const signer = blockchainManager.getSigner(identity.privateKey);
   payload = { name: 'TEST' };
   jwt = await blockchainManager.createJWT(identity.did, identity.privateKey, {
     ...payload,
@@ -178,6 +177,7 @@ describe('blockchain Manager Credentials should', () => {
     expect.assertions(1);
     let issuerIdentity = null;
     try {
+      /* eslint-disable-next-line no-unused-vars */
       issuerIdentity = blockchainManager.createIdentity(prefixToAdd);
     } catch (error) {
       expect(error).toBe(
