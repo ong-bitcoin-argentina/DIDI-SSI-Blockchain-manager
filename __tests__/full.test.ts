@@ -1,8 +1,10 @@
-import { BlockchainManager, CredentialVerificationResponse } from "../src/BlockchainManager";
+import {
+  BlockchainManager,
+  CredentialVerificationResponse,
+} from '../src/BlockchainManager';
 
-
-const Constants = require("./constants/Constants");
-const { initializeBlockchainManager } = require("./utils/utils");
+const Constants = require('./constants/Constants');
+const { initializeBlockchainManager } = require('./utils/utils');
 
 const config = {
   gasPrice: 10000,
@@ -11,37 +13,40 @@ const config = {
 
 let blockchainManager: BlockchainManager;
 let jwt: string;
-let createdCredential;
 
 const subject = {
   DatosPersonales: {
     preview: {
-      fields: ["dni", "names", "lastNames", "nationality"],
+      fields: ['dni', 'names', 'lastNames', 'nationality'],
       type: 2,
     },
-    category: "identity",
+    category: 'identity',
     data: {
       dni: 12345678,
-      names: "Homero",
-      lastNames: "Simpson",
-      nationality: "Argentina",
+      names: 'Homero',
+      lastNames: 'Simpson',
+      nationality: 'Argentina',
     },
   },
 };
 
-let aYearFromNow = new Date();
+const aYearFromNow = new Date();
 aYearFromNow.setFullYear(aYearFromNow.getFullYear() + 1);
 
+/* eslint-disable-next-line no-unused-vars */
 async function createJWT(identity): Promise<object> {
-  const signer = blockchainManager.getSigner(identity.privateKey);
-  const payload = { name: "TEST" };
-  jwt = await blockchainManager.createJWT(identity.did, identity.privateKey, payload );
+  const payload = { name: 'TEST' };
+  jwt = await blockchainManager.createJWT(
+    identity.did,
+    identity.privateKey,
+    payload,
+  );
   return { jwt, payload };
 }
 
-xdescribe("Delegate an issuer, sign a credential and verify the credential an issuer.", () => {
-
-  it("Delegate a new Issuer", async () => {
+describe.skip('delegate an issuer, sign a credential and verify the credential an issuer.', () => {
+  it('delegate a new Issuer', async () => {
+    expect.assertions(2);
     blockchainManager = initializeBlockchainManager(config);
     const didiIdentity = {
       did: process.env.DELEGATOR_DID,
@@ -51,25 +56,33 @@ xdescribe("Delegate an issuer, sign a credential and verify the credential an is
     const subjectIdentity = blockchainManager.createIdentity();
 
     // Delegate new Issuer in every Blockchain.
-    const delegateResponse = await blockchainManager.addDelegate(didiIdentity, issuerIdentity.did, '8640000');
-    delegateResponse.forEach(({network, status}) => {
-      const expectedStatus = network === 'mainnet' || network === 'goerli' ? 'rejected' : 'fulfilled' ;
-      expect(status).toBe(expectedStatus)
+    const delegateResponse = await blockchainManager.addDelegate(
+      didiIdentity,
+      issuerIdentity.did,
+      '8640000',
+    );
+    delegateResponse.forEach(({ network, status }) => {
+      const expectedStatus =
+        network === 'mainnet' || network === 'goerli'
+          ? 'rejected'
+          : 'fulfilled';
+      expect(status).toBe(expectedStatus);
     });
 
     // Delegated issuer creates a new credential
-    let credential: string = await blockchainManager.createCredential(
+    const credential: string = await blockchainManager.createCredential(
       subjectIdentity.did,
       subject,
       aYearFromNow,
       issuerIdentity.did,
-      issuerIdentity.privateKey
+      issuerIdentity.privateKey,
     );
     // console.log(credential);
 
     // The credential is verfie and if a did is providad, delegation is verified too.
-    const verificationResponse: CredentialVerificationResponse = await blockchainManager.verifyCredential(credential, didiIdentity.did);
+    const verificationResponse: CredentialVerificationResponse =
+      await blockchainManager.verifyCredential(credential, didiIdentity.did);
     // console.log(verificationResponse);
-    expect(verificationResponse).toBe(true)
+    expect(verificationResponse).toBe(true);
   });
 });
