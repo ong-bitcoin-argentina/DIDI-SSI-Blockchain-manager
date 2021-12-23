@@ -1,0 +1,36 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true,
+        "jest": true
+    },
+    "extends": [
+        "airbnb-base",
+        "prettier",
+        "plugin:prettier/recommended",
+        "plugin:jest/all"
+    ],
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "plugins": [
+        "@typescript-eslint",
+        "prettier"
+    ],
+    "rules": {
+        "import/prefer-default-export": "off",
+        "import/extensions": "off",
+        "import/no-unresolved": "off",
+        "import/first": "off",
+        "class-methods-use-this": "warn",
+        "no-use-before-define": "warn",
+        "no-return-assign": "warn",
+        "jest/no-conditional-expect": "warn",
+        "jest/require-hook": "warn",
+        "jest/no-disabled-tests": "warn",
+        "jest/no-test-return-statement": "warn",
+        "no-param-reassign": "warn"
+    }
+}
