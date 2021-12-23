@@ -1,6 +1,6 @@
 {
   "name": "@proyecto-didi/didi-blockchain-manager",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "dependencies": {
     "did-jwt": "^5.11.0",
     "did-jwt-vc": "^2.1.7",
