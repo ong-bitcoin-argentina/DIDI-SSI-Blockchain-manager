@@ -2,7 +2,7 @@ import { Resolver } from 'did-resolver';
 import Web3 from 'web3';
 
 const { Credentials } = require('uport-credentials');
-const { createVerifiableCredential, verifyCredential } = require('did-jwt-vc');
+const { createVerifiableCredentialJwt, verifyCredential } = require('did-jwt-vc');
 const DidRegistryContract = require('ethr-did-registry');
 const didJWT = require('did-jwt');
 const { delegateTypes, getResolver } = require('ethr-did-resolver');
@@ -473,11 +473,11 @@ export class BlockchainManager {
     payload.aud = audienceDID;
 
     const signer = didJWT.SimpleSigner(pkey);
-    const response = await didJWT.createJWT(payload, {
-      alg: 'ES256K-R',
-      issuer: issuerDid,
-      signer,
-    });
+    const response = await didJWT.createJWT(
+      payload, 
+      { issuer: issuerDid, signer },
+      { alg: "ES256K-R" }
+    );
     return response;
   }
 
@@ -496,11 +496,12 @@ export class BlockchainManager {
    * @param {string} audienceDID DID of the audience if needed
    */
   async verifyJWT(jwt, audienceDID = undefined) {
-    const aux = await didJWT.verifyJWT(jwt, {
+    let response = await didJWT.verifyJWT(jwt, {
       resolver: this.didResolver,
       audience: audienceDID,
     });
-    return aux;
+    response.doc = response.didResolutionResult.didDocument;
+    return response;
   }
 
   /**
@@ -550,7 +551,7 @@ export class BlockchainManager {
     if (expirationDate) {
       vcPayload.exp = date;
     }
-    const result = await createVerifiableCredential(vcPayload, vcIssuer);
+    const result = await createVerifiableCredentialJwt(vcPayload, vcIssuer);
     return result;
   }
 
