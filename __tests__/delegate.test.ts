@@ -88,7 +88,7 @@ describe('blockchainManager Delegation', () => {
     });
 
     it('fail to revoke delegation on Mainnet due to insufficients funds', async () => {
-      expect.assertions(1);
+      expect.assertions(8);
       const revokeTxs = await blockchainManager.revokeDelegate(
         issuerIdentity,
         delegateIdentity.did,
@@ -124,7 +124,6 @@ describe('blockchainManager Delegation', () => {
   });
 
   describe('on MAINNET should', () => {
-    expect.assertions(1);
     const delegateIdentity = createIdentity();
 
     it('fail delegation due to insufficient funds for gas on MAINNET', async () => {
@@ -156,17 +155,14 @@ describe('blockchainManager Delegation', () => {
     });
 
     it('revoke delegation on MAINNET', async () => {
-      expect.assertions(1);
+      expect.assertions(2);
       const prefixToAdd = 'mainnet:';
       const prefixAddedDid = addPrefix(prefixToAdd, delegateIdentity.did);
-
-      try {
-        await blockchainManager.revokeDelegate(issuerIdentity, prefixAddedDid);
-      } catch (error) {
-        expect(
-          error.message.includes('insufficient funds for gas * price + value'),
-        ).toBeTruthy();
-      }
+      const [revoke] = await blockchainManager.revokeDelegate(issuerIdentity, prefixAddedDid);
+      expect(revoke.status).toBe('rejected'); // not gas
+      expect(
+        revoke.value.message.includes('insufficient funds for gas * price + value'),
+      ).toBeTruthy();
     });
   });
 
@@ -174,7 +170,7 @@ describe('blockchainManager Delegation', () => {
     const delegateIdentity = createIdentity();
 
     it('be able to addDelegate on RSK', async () => {
-      expect.assertions(3);
+      expect.assertions(11);
       const prefixToAdd = 'rsk:';
       const response = await addDelegation(prefixToAdd, delegateIdentity);
       expect(response[0].status).toBe('fulfilled');
@@ -183,7 +179,7 @@ describe('blockchainManager Delegation', () => {
     });
 
     it('be able to addDelegate 3 times simultaneously on RSK', async () => {
-      expect.assertions(3);
+      expect.assertions(9);
       const prefixToAdd = 'rsk:';
       const delegateTxs = [];
       for (let i = 0; i < 3; i += 1) {
@@ -264,7 +260,7 @@ describe('blockchainManager Delegation', () => {
     });
 
     it('be able to addDelegate 3 times simultaneously on LACCHAIN', async () => {
-      expect.assertions(3);
+      expect.assertions(9);
       const prefixToAdd = 'lacchain:';
       const delegateTxs = [];
       for (let i = 0; i < 3; i += 1) {
@@ -345,7 +341,7 @@ describe('blockchainManager Delegation', () => {
     });
 
     it('be able to addDelegate 3 times simultaneously on BFA', async () => {
-      expect.assertions(3);
+      expect.assertions(9);
       const prefixToAdd = 'bfa:';
       const delegateTxs = [];
       for (let i = 0; i < 3; i += 1) {

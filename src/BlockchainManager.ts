@@ -1,6 +1,5 @@
 import { Resolver } from 'did-resolver';
 import Web3 from 'web3';
-
 const { Credentials } = require('uport-credentials');
 const { createVerifiableCredentialJwt, verifyCredential } = require('did-jwt-vc');
 const DidRegistryContract = require('ethr-did-registry');
@@ -682,14 +681,13 @@ export class BlockchainManager {
         this.config.providerConfig.networks,
         delegatedDID,
       );
-      const revoke: any = await Promise.allSettled([
-        this.revokeOnBlockchain(
-          blockchainToConnect,
-          delegatedDID,
-          issuerCredentials,
-        ),
-      ]);
-      revoke[0].network = blockchainToConnect.name;
+      const revoke: any = await Promise.allSettled([this.revokeOnBlockchain(blockchainToConnect, delegatedDID, issuerCredentials)])
+      
+      return [{
+        network: blockchainToConnect.name,
+        status: revoke[0].status,
+        value: revoke[0].reason || revoke[0].value,
+      }]
       return revoke;
     }
 

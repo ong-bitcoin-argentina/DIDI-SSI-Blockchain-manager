@@ -22,7 +22,7 @@ describe('isSynced method', () => {
     );
     jest.spyOn(web3.eth, 'isSyncing').mockImplementation(syncingIsTrue);
     it('should throw when node is syncing', async () => {
-      expect.assertions(2);
+      expect.assertions(1);
       try {
         await blockchainManager.onlySynced(web3);
         expect(false).toBeTruthy();
@@ -39,7 +39,7 @@ describe('isSynced method', () => {
     );
     jest.spyOn(web3.eth, 'isSyncing').mockImplementation(syncingIsFalse);
     it('should not throw when node is synced', async () => {
-      expect.assertions(1);
+      expect.assertions(0);
       try {
         await blockchainManager.onlySynced(web3);
       } catch (e) {

@@ -4,7 +4,7 @@ import { DIDS } from './constants/Constants';
 describe('__tests__/addBlockchainToDid.test.js', () => {
   it('add blokchain to did without network', async () => {
     expect.assertions(1);
-    const result = await BlockchainManager.addBlockchainToDid(
+    const result = BlockchainManager.addBlockchainToDid(
       DIDS.didWithoutNetwork,
       DIDS.network,
     );
@@ -12,8 +12,12 @@ describe('__tests__/addBlockchainToDid.test.js', () => {
   });
 
   it('add blokchain to did with network', async () => {
-    expect.assertions(2);
+    expect.assertions(1);
     try {
+      BlockchainManager.addBlockchainToDid(
+        DIDS.didWithNetwork,
+        DIDS.network
+      );
       expect(false).toBe(true);
     } catch (e) {
       expect(e.message).toMatch('#blockchainManager-didWithNetwork');
