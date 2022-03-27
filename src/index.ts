@@ -1,1 +1,1 @@
-export { BlockchainManager } from './BlockchainManager';
+export { BlockchainManager } from "./BlockchainManager";

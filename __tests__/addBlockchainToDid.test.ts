@@ -1,26 +1,23 @@
-import { BlockchainManager } from '../src/BlockchainManager';
-import { DIDS } from './constants/Constants';
+import { BlockchainManager } from "../src/BlockchainManager";
+import { DIDS } from "./constants/Constants";
 
-describe('__tests__/addBlockchainToDid.test.js', () => {
-  it('add blokchain to did without network', async () => {
+describe("__tests__/addBlockchainToDid.test.js", () => {
+  it("add blokchain to did without network", async () => {
     expect.assertions(1);
     const result = BlockchainManager.addBlockchainToDid(
       DIDS.didWithoutNetwork,
-      DIDS.network,
+      DIDS.network
     );
     expect(result).toBe(DIDS.didWithNetwork);
   });
 
-  it('add blokchain to did with network', async () => {
+  it("add blokchain to did with network", async () => {
     expect.assertions(1);
     try {
-      BlockchainManager.addBlockchainToDid(
-        DIDS.didWithNetwork,
-        DIDS.network
-      );
+      BlockchainManager.addBlockchainToDid(DIDS.didWithNetwork, DIDS.network);
       expect(false).toBe(true);
     } catch (e) {
-      expect(e.message).toMatch('#blockchainManager-didWithNetwork');
+      expect(e.message).toMatch("#blockchainManager-didWithNetwork");
     }
   });
 });

@@ -1,6 +1,7 @@
-const Web3 = require('web3');
-const Constants = require('./constants/Constants');
-const { initializeBlockchainManager } = require('./utils/utils');
+import { BlockchainManager } from "../src/BlockchainManager";
+
+const Web3 = require("web3");
+const Constants = require("./constants/Constants");
 
 const syncingIsFalse = () => false;
 const syncingIsTrue = () => ({
@@ -9,42 +10,30 @@ const syncingIsTrue = () => ({
   highestBlock: 1910400,
 });
 
-const config = {
-  gasPrice: 10000,
-  providerConfig: Constants.BLOCKCHAIN.PROVIDER_CONFIG,
-};
-
-describe('isSynced method', () => {
-  describe('mock sincronizando', () => {
-    const blockchainManager = initializeBlockchainManager(config);
+describe("isSynced method", () => {
+  describe("mock sincronizando", () => {
     const web3 = new Web3(
-      Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].rpcUrl,
+      Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].rpcUrl
     );
-    jest.spyOn(web3.eth, 'isSyncing').mockImplementation(syncingIsTrue);
-    it('should throw when node is syncing', async () => {
+    jest.spyOn(web3.eth, "isSyncing").mockImplementation(syncingIsTrue);
+    it("should throw when node is syncing", async () => {
       expect.assertions(1);
       try {
-        await blockchainManager.onlySynced(web3);
-        expect(false).toBeTruthy();
+        await BlockchainManager.onlySynced(web3);
       } catch (e) {
-        expect(e.message).toMatch('#blockchainManager-nodeIsSyncing');
+        expect(e.message).toMatch("#blockchainManager-nodeIsSyncing");
       }
     });
   });
 
-  describe('mock sincronizando v2', () => {
-    const blockchainManager = initializeBlockchainManager(config);
+  describe("mock sincronizando v2", () => {
     const web3 = new Web3(
-      Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].rpcUrl,
+      Constants.BLOCKCHAIN.PROVIDER_CONFIG.networks[0].rpcUrl
     );
-    jest.spyOn(web3.eth, 'isSyncing').mockImplementation(syncingIsFalse);
-    it('should not throw when node is synced', async () => {
+    jest.spyOn(web3.eth, "isSyncing").mockImplementation(syncingIsFalse);
+    it("should not throw when node is synced", async () => {
       expect.assertions(0);
-      try {
-        await blockchainManager.onlySynced(web3);
-      } catch (e) {
-        expect(false).toBeTruthy();
-      }
+      await BlockchainManager.onlySynced(web3);
     });
   });
 });

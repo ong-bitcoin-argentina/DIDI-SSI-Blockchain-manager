@@ -41,8 +41,8 @@
     "posttest": "coveralls < coverage/lcov.info",
     "build": "tsc",
     "typeCheck": "tsc --noEmit",
-    "lint": "eslint **/*.ts",
-    "lint:fix": "eslint **/*.ts --fix",
+    "lint": "eslint __tests__/*.ts src/*.ts",
+    "lint:fix": "eslint __tests__/*.ts src/*.ts --fix",
     "prenpm:publish": "npm run lint && npm run build",
     "npm:publish": "npm publish --access public"
   },

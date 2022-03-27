@@ -7,10 +7,15 @@ const ATTRIBUTE_VALIDITY =
 
 // ======================================================================================================
 
-const { BLOCKCHAIN_URL_RSK, BLOCKCHAIN_URL_LAC, BLOCKCHAIN_URL_BFA } = process.env;
+const { BLOCKCHAIN_URL_RSK, BLOCKCHAIN_URL_LAC, BLOCKCHAIN_URL_BFA } =
+  process.env;
 
 // uPort SC ON
-const { BLOCKCHAIN_CONTRACT_MAIN, BLOCKCHAIN_CONTRACT_LAC, BLOCKCHAIN_CONTRACT_BFA } = process.env;
+const {
+  BLOCKCHAIN_CONTRACT_MAIN,
+  BLOCKCHAIN_CONTRACT_LAC,
+  BLOCKCHAIN_CONTRACT_BFA,
+} = process.env;
 
 const { INFURA_KEY } = process.env;
 // Provider
@@ -71,29 +76,31 @@ const PROVIDER_CONFIG = {
 
 const CREDENTIALS = {
   types: {
-    verifiable: "VerifiableCredential"
+    verifiable: "VerifiableCredential",
   },
-  context: "https://www.w3.org/2018/credentials/v1"
+  context: "https://www.w3.org/2018/credentials/v1",
 };
 
 const DIDS = {
-  didWithNetwork:"did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
-  didWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
-  did:"0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
-  network:"lacchain",
-  otherDidWithNetwork: "did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
-  otherDidSameNetwork: "did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
-  otherDidOtherNetwork: "did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
-  otherDidWithoutNetwork:"did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
-}
-
-module.exports = {
-  BLOCKCHAIN: {
-    DELEGATE_DURATION: DELEGATE_DURATION,
-    ATTRIBUTE_VALIDITY: ATTRIBUTE_VALIDITY,
-    PROVIDER_CONFIG: PROVIDER_CONFIG,
-    GAS_INCREMENT: GAS_INCREMENT
-  },
-  CREDENTIALS: CREDENTIALS,
-  DIDS: DIDS
+  didWithNetwork:
+    "did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  didWithoutNetwork: "did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  did: "0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  network: "lacchain",
+  otherDidWithNetwork:
+    "did:ethr:lacchain:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
+  otherDidSameNetwork:
+    "did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984fcf21b",
+  otherDidOtherNetwork:
+    "did:ethr:rsk:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
+  otherDidWithoutNetwork: "did:ethr:0xdca7ef03e98e0dc2b855be647c39abe984fcf21c",
 };
+
+const BLOCKCHAIN = {
+  DELEGATE_DURATION,
+  ATTRIBUTE_VALIDITY,
+  PROVIDER_CONFIG,
+  GAS_INCREMENT,
+};
+
+export { BLOCKCHAIN, CREDENTIALS, DIDS };
