@@ -27,7 +27,7 @@
         "class-methods-use-this": "warn",
         "no-use-before-define": "warn",
         "no-return-assign": "warn",
-        "jest/no-conditional-expect": "warn",
+        "jest/no-conditional-expect": "off",
         "jest/require-hook": "warn",
         "jest/no-disabled-tests": "warn",
         "jest/no-test-return-statement": "warn",

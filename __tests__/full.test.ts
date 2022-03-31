@@ -1,10 +1,10 @@
 import {
   BlockchainManager,
   CredentialVerificationResponse,
-} from '../src/BlockchainManager';
+} from "../src/BlockchainManager";
 
-const Constants = require('./constants/Constants');
-const { initializeBlockchainManager } = require('./utils/utils');
+const Constants = require("./constants/Constants");
+const { initializeBlockchainManager } = require("./utils/utils");
 
 const config = {
   gasPrice: 10000,
@@ -17,35 +17,37 @@ let jwt: string;
 const subject = {
   DatosPersonales: {
     preview: {
-      fields: ['dni', 'names', 'lastNames', 'nationality'],
+      fields: ["dni", "names", "lastNames", "nationality"],
       type: 2,
     },
-    category: 'identity',
+    category: "identity",
     data: {
       dni: 12345678,
-      names: 'Homero',
-      lastNames: 'Simpson',
-      nationality: 'Argentina',
+      names: "Homero",
+      lastNames: "Simpson",
+      nationality: "Argentina",
     },
   },
 };
 
 const aYearFromNow = new Date();
+// eslint-disable-next-line jest/require-hook
 aYearFromNow.setFullYear(aYearFromNow.getFullYear() + 1);
 
 /* eslint-disable-next-line no-unused-vars */
 async function createJWT(identity): Promise<object> {
-  const payload = { name: 'TEST' };
-  jwt = await blockchainManager.createJWT(
+  const payload = { name: "TEST" };
+  jwt = await BlockchainManager.createJWT(
     identity.did,
     identity.privateKey,
-    payload,
+    payload
   );
   return { jwt, payload };
 }
 
-describe.skip('delegate an issuer, sign a credential and verify the credential an issuer.', () => {
-  it('delegate a new Issuer', async () => {
+// eslint-disable-next-line jest/no-disabled-tests
+describe.skip("delegate an issuer, sign a credential and verify the credential an issuer.", () => {
+  it("delegate a new Issuer", async () => {
     expect.assertions(2);
     blockchainManager = initializeBlockchainManager(config);
     const didiIdentity = {
@@ -59,23 +61,23 @@ describe.skip('delegate an issuer, sign a credential and verify the credential a
     const delegateResponse = await blockchainManager.addDelegate(
       didiIdentity,
       issuerIdentity.did,
-      '8640000',
+      "8640000"
     );
     delegateResponse.forEach(({ network, status }) => {
       const expectedStatus =
-        network === 'mainnet' || network === 'goerli'
-          ? 'rejected'
-          : 'fulfilled';
+        network === "mainnet" || network === "goerli"
+          ? "rejected"
+          : "fulfilled";
       expect(status).toBe(expectedStatus);
     });
 
     // Delegated issuer creates a new credential
-    const credential: string = await blockchainManager.createCredential(
+    const credential: string = await BlockchainManager.createCredential(
       subjectIdentity.did,
       subject,
       aYearFromNow,
       issuerIdentity.did,
-      issuerIdentity.privateKey,
+      issuerIdentity.privateKey
     );
     // console.log(credential);
 

@@ -15,17 +15,17 @@
 // with some $$$ in it, to execute the transaction and pay the fee.               //
 // This info must be added also in the .env file. (check out README file)         //
 /// /////////////////////////////////////////////////////////////////////////////////
+import { BLOCKCHAIN } from "./constants/Constants";
 
-const Constants = require('./constants/Constants');
-const { addPrefix } = require('../src/BlockchainManager');
+const { addPrefix } = require("../src/BlockchainManager");
 const {
   initializeBlockchainManager,
   createIdentity,
-} = require('./utils/utils');
+} = require("./utils/utils");
 
 const config = {
   gasPrice: 10000,
-  providerConfig: Constants.BLOCKCHAIN.PROVIDER_CONFIG,
+  providerConfig: BLOCKCHAIN.PROVIDER_CONFIG,
 };
 
 let identity;
@@ -38,25 +38,25 @@ beforeEach(() => {
   blockchainManager = initializeBlockchainManager(config);
 });
 
-describe('blockchainManager should', () => {
-  it('be an instance containing the config', function () {
+describe("blockchainManager should", () => {
+  it("be an instance containing the config", () => {
     expect.assertions(1);
     expect(blockchainManager.config).toBe(config);
   });
 });
 
-describe('blockchainManager document DID functions should', () => {
-  it('be able to resolve a valid mainnet (did:ethr:) didDocument', async () => {
+describe("blockchainManager document DID functions should", () => {
+  it("be able to resolve a valid mainnet (did:ethr:) didDocument", async () => {
     expect.assertions(1);
     const resolvedDid = await blockchainManager.resolveDidDocument(
-      identity.did,
+      identity.did
     );
     expect(resolvedDid).toBeDefined();
   });
 
-  it('be able to resolve a valid RSK (did:ethr:rsk) didDocument', async () => {
+  it("be able to resolve a valid RSK (did:ethr:rsk) didDocument", async () => {
     expect.assertions(1);
-    const network = 'rsk:';
+    const network = "rsk:";
     const { did } = identity;
     const rskDid = addPrefix(network, did);
     const resolvedDid = await blockchainManager.resolveDidDocument(rskDid);
@@ -64,53 +64,54 @@ describe('blockchainManager document DID functions should', () => {
     expect(resolvedDid).toBeDefined();
   });
 
-  it('be able to resolve a valid Lacchain (did:ethr:lac) didDocument', async () => {
+  it("be able to resolve a valid Lacchain (did:ethr:lac) didDocument", async () => {
     expect.assertions(1);
-    const network = 'lacchain:';
+    const network = "lacchain:";
     const { did } = identity;
     const lacDid = addPrefix(network, did);
     const resolvedDid = await blockchainManager.resolveDidDocument(lacDid);
     expect(resolvedDid).toBeDefined();
   });
 
-  it('be able to resolve a valid BFA (did:ethr:bfa) didDocument', async () => {
+  it("be able to resolve a valid BFA (did:ethr:bfa) didDocument", async () => {
     expect.assertions(1);
-    const network = 'bfa:';
+    const network = "bfa:";
     const { did } = identity;
     const bfaDid = addPrefix(network, did);
     const resolvedDid = await blockchainManager.resolveDidDocument(bfaDid);
     expect(resolvedDid).toBeDefined();
   });
 
-  it('have the same did', function () {
+  it("have the same did", async () => {
     expect.assertions(1);
-    return blockchainManager.resolveDidDocument(identity.did).then((result) => {
-      expect(result.publicKey[0].controller).toStrictEqual(identity.did);
-    });
+    const result = await blockchainManager.resolveDidDocument(identity.did);
+    expect(result.publicKey[0].controller).toStrictEqual(identity.did);
   });
 
-  it('not resolve adulterated did', function () {
+  it("not resolve adulterated did", async () => {
     expect.assertions(1);
-    const lastColon = identity.did.lastIndexOf(':');
+    const lastColon = identity.did.lastIndexOf(":");
     const didPrefix = identity.did.substring(0, lastColon + 1);
     const didPostfix = identity.did.substring(
       lastColon + 1,
-      identity.did.length,
+      identity.did.length
     );
     // Shuffle posfix and extract 1 character to make an invalid did
     const adulteratedDid = didPrefix.concat(
-      '0x',
+      "0x",
       didPostfix
         .substring(2)
-        .split('')
+        .split("")
         .sort(() => {
           return 0.5 - Math.random();
         })
-        .join('')
-        .substring(1),
+        .join("")
+        .substring(1)
     );
-    return blockchainManager.resolveDidDocument(adulteratedDid).catch((e) => {
-      expect(e.message).toContain('Not a valid ethr DID');
-    });
+    try {
+      await await blockchainManager.resolveDidDocument(adulteratedDid);
+    } catch (e) {
+      expect(e.message).toContain("Not a valid ethr DID");
+    }
   });
 });
