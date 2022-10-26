@@ -65,3 +65,7 @@ PROVIDER_CONFIG = {
 the ENV file as *GAS_INCREMENT*
 
 <hr style="border:1px solid gray"> </hr>
+
+## [Library package](https://www.npmjs.com/package/@proyecto-didi/didi-blockchain-manager)
+
+For more information about DIDI project, see the [documentation](https://docs.didi.org.ar/docs/developers/solucion/descripcion-tecnica/arquitectura-issuer)
